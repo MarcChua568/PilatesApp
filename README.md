@@ -1,114 +1,178 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Pilates Studio Reservation Platform — Phase 1 Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS + PostgreSQL REST API for a Pilates studio class-reservation system:
+concurrency-safe booking with assigned reformer spots, waitlisting with
+auto-promotion / offer-and-accept, a studio-configurable cancellation window,
+no-show tracking, guest bookings, and reporting.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- **Design:** [`docs/superpowers/specs/2026-08-27-backend-design.md`](docs/superpowers/specs/2026-08-27-backend-design.md)
+  and the [spot-booking addendum](docs/superpowers/specs/2026-08-27-backend-design-addendum.md)
+- **Plan:** [`docs/superpowers/plans/2026-08-27-backend.md`](docs/superpowers/plans/2026-08-27-backend.md)
+- **UX research** (for Phase 2 admin panel / Phase 3 member app): [`docs/design/`](docs/design/)
 
-## Description
+Phases 2 (admin panel) and 3 (React Native member app) are not in this repo yet.
+The credit / class-package subsystem is deliberately deferred to Phase 1.5.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Stack
 
-## Project setup
+| | |
+|---|---|
+| Runtime | Node.js 20+, NestJS 11 (CommonJS) |
+| DB | PostgreSQL 14+ (`citext`, `uuid-ossp` extensions) |
+| ORM | TypeORM 0.3.31 (migrations, no `synchronize`) |
+| Auth | JWT access + refresh, `bcrypt`, role guard (`member` / `staff` / `admin`) |
+| Tests | Jest (unit + e2e against a real Postgres test DB) |
+| Scheduled jobs | `@nestjs/schedule` — no-show sweep + waitlist-offer lapse every 10 min |
 
-```bash
-$ npm install
-```
+> **No Docker on the dev machine.** The plan originally specified Docker Compose +
+> Postgres 16; this project targets a local Homebrew **PostgreSQL 14** with two
+> databases (`pilates_dev`, `pilates_test`) on `:5432`. `docker-compose.yml` is
+> kept for anyone who does have Docker.
 
-## Compile and run the project
+## Prerequisites
 
-```bash
-# development
-$ npm run start
+- Node.js 20+
+- PostgreSQL 14+ running locally (`brew install postgresql@14 && brew services start postgresql@14`)
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
+## Setup
 
 ```bash
-# unit tests
-$ npm run test
+# 1. databases
+createdb pilates_dev
+createdb pilates_test
 
-# e2e tests
-$ npm run test:e2e
+# 2. env
+cp .env.example .env          # edit DATABASE_URL / JWT secrets if needed
 
-# test coverage
-$ npm run test:cov
+# 3. install
+npm install
+
+# 4. schema
+npm run migration:run
+DATABASE_URL=postgres://<you>@localhost:5432/pilates_test npm run migration:run
+
+# 5. sample data (instructors, rooms + a reformer spot map, 2 weeks of classes,
+#    admin/staff/member accounts, and some bookings incl. a full class + waitlist)
+npm run seed
 ```
 
-## Deployment
+Seed logins — password `password123`:
+`admin@studio.test`, `staff1@studio.test`, `member1@studio.test` … `member5@studio.test`
+(`member6` has *not* signed the waiver, to exercise that gate).
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Run
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run start:dev          # watch mode on http://localhost:3000
+# or
+npm run build && npm run start:prod
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+`GET /health` → `{"status":"ok"}`.
 
-## Observability
+## Tests
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
+```bash
+npm test                                   # unit (51 tests)
 
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
+# e2e — needs the test DB migrated (step 4 above)
+DATABASE_URL=postgres://<you>@localhost:5432/pilates_test npm run test:e2e
+```
 
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
+The **concurrency test** (`test/bookings-concurrency.e2e-spec.ts`) fires two
+simultaneous bookings at the last open seat — and at the same reformer spot — and
+asserts exactly one wins. It uses a real Postgres connection because it is the
+`SELECT … FOR UPDATE` row-lock semantics being verified.
 
-## Resources
+## API tour (curl)
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+B=http://localhost:3000
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observer](https://observer.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# --- auth ---
+curl -s -X POST $B/auth/register -H 'content-type: application/json' \
+  -d '{"email":"me@example.com","password":"password1","fullName":"Me"}'
+TOKEN=$(curl -s -X POST $B/auth/login -H 'content-type: application/json' \
+  -d '{"email":"me@example.com","password":"password1"}' | jq -r .accessToken)
 
-## Support
+# --- first-visit waiver (required before the first booking) ---
+curl -s -X POST $B/users/me/waiver -H "Authorization: Bearer $TOKEN"
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# --- browse the schedule (filters: instructorId, roomId, from, to) ---
+curl -s "$B/class-instances?from=2026-09-01" -H "Authorization: Bearer $TOKEN"
 
-## Stay in touch
+# --- see the reformer spot map for a class (open / taken / mine / blocked) ---
+curl -s "$B/class-instances/<CLASS_ID>/spots" -H "Authorization: Bearer $TOKEN"
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# --- book (spotId required when the room has assigned spots) ---
+curl -s -X POST $B/bookings -H "Authorization: Bearer $TOKEN" \
+  -H 'content-type: application/json' \
+  -d '{"classInstanceId":"<CLASS_ID>","spotId":"<SPOT_ID>"}'
+# full class -> {"status":"waitlisted","waitlistPosition":1}
+# with guests -> add "guests":[{"name":"Alex","spotId":"<SPOT_ID_2>"}]
 
-## License
+# --- cancel (always succeeds; response flags wasLateCancellation) ---
+curl -s -X DELETE $B/bookings/<BOOKING_ID> -H "Authorization: Bearer $TOKEN"
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+# --- accept a waitlist promotion offer (inside the auto-promote cutoff) ---
+curl -s -X POST $B/bookings/<BOOKING_ID>/accept-offer -H "Authorization: Bearer $TOKEN"
+
+# --- my bookings ---
+curl -s $B/bookings/me -H "Authorization: Bearer $TOKEN"
+```
+
+Staff/admin only:
+
+```bash
+S=$(curl -s -X POST $B/auth/login -H 'content-type: application/json' \
+  -d '{"email":"staff1@studio.test","password":"password123"}' | jq -r .accessToken)
+
+curl -s $B/bookings/class/<CLASS_ID>        -H "Authorization: Bearer $S"  # roster
+curl -s -X PATCH $B/attendance/<BOOKING_ID>/check-in -H "Authorization: Bearer $S"
+curl -s -X PATCH $B/attendance/<BOOKING_ID>/no-show  -H "Authorization: Bearer $S"
+curl -s $B/reports/bookings-per-class       -H "Authorization: Bearer $S"
+curl -s $B/reports/attendance-rate          -H "Authorization: Bearer $S"
+curl -s $B/reports/no-show-rate             -H "Authorization: Bearer $S"
+
+# admin only
+curl -s -X PATCH $B/settings -H "Authorization: Bearer $S" \
+  -H 'content-type: application/json' -d '{"cancellationWindowHours":24}'
+```
+
+## Endpoint summary
+
+| Method | Path | Access |
+|---|---|---|
+| POST | `/auth/register`, `/auth/login`, `/auth/refresh` | public / bearer |
+| GET/POST | `/users/me`, `/users/me/waiver` | member |
+| GET | `/instructors`, `/rooms`, `/rooms/:id/spots`, `/class-templates`, `/class-instances`, `/class-instances/:id/spots`, `/settings`, `/announcements` | member |
+| POST/PATCH/DELETE | `/instructors`, `/rooms`, `/rooms/:id/spots` · `/spots/:id`, `/class-templates`, `/class-instances`, `/announcements` | staff / admin |
+| POST | `/class-instances/generate/:templateId` | staff / admin |
+| POST/DELETE | `/bookings`, `/bookings/:id`, `/bookings/:id/accept-offer` | member (own) |
+| GET | `/bookings/me` | member; `/bookings/class/:id` staff |
+| PATCH | `/attendance/:bookingId/check-in`, `/attendance/:bookingId/no-show` | staff / admin |
+| GET | `/reports/*` | staff / admin |
+| PATCH | `/settings` | admin |
+
+## Business-logic notes
+
+- **No overbooking under concurrency.** Every capacity mutation goes through
+  `bookings/capacity.service.ts`, inside a transaction that takes a
+  `pessimistic_write` lock on the `class_instances` row. Spot uniqueness has a
+  partial unique index (`class_instance_id, spot_id WHERE status='booked'`) as a
+  hard backstop.
+- **Cancellation window** (`studio_settings.cancellation_window_hours`, default 2):
+  cancelling inside the window still succeeds but the response carries
+  `wasLateCancellation: true`. No fee/credit consequence exists yet (Phase 1.5).
+- **Waitlist:** a full class auto-waitlists a lone member. When a spot frees up
+  more than `waitlist_auto_promote_cutoff_hours` (default 2) before start, the next
+  person is auto-seated (and auto-assigned a spot); inside that window they are
+  *offered* the spot with a TTL (`waitlist_offer_ttl_minutes`, default 30) and must
+  `POST /bookings/:id/accept-offer`. Expired offers pass down the list via the sweep.
+- **No-shows:** a `booked` reservation not checked in by class end becomes
+  `no_show` via the 10-minute sweep; staff can also mark it manually. A no-show
+  marked *before* class start frees the spot and promotes the waitlist.
+- **Guests:** a member can book up to `max_seats_per_booking` attendees at once
+  (default 1). Guests consume capacity/spots and are billed to the booker; the
+  whole party must fit or the request is rejected.
+```

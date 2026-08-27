@@ -7,3 +7,6 @@ coverage/
 
 # Claude Code local worktrees / session state
 .claude/
+
+# TS incremental build cache
+*.tsbuildinfo
