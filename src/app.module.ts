@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { InstructorsModule } from './instructors/instructors.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { SettingsModule } from './settings/settings.module';
+import { ClassTemplatesModule } from './classes/class-templates.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { SettingsModule } from './settings/settings.module';
     InstructorsModule,
     RoomsModule,
     SettingsModule,
+    ClassTemplatesModule,
   ],
   controllers: [HealthController],
 })
