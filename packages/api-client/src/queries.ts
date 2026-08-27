@@ -113,6 +113,43 @@ export function makeHooks(api: Client) {
     });
   };
 
+  const useSpotMap = (id: string | undefined) =>
+    useQuery({
+      queryKey: queryKeys.spotMap(id ?? ''),
+      queryFn: () => api.classInstances.spots(id as string),
+      enabled: !!id,
+    });
+
+  const useSignWaiverMutation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: () => api.me.signWaiver(),
+      onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.me }),
+    });
+  };
+
+  const useAcceptOfferMutation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: (bookingId: string) => api.bookings.acceptOffer(bookingId),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: queryKeys.myBookings });
+        qc.invalidateQueries({ queryKey: ['class-instances'] });
+      },
+    });
+  };
+
+  const useCancelMyBookingMutation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: (bookingId: string) => api.bookings.cancel(bookingId),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: queryKeys.myBookings });
+        qc.invalidateQueries({ queryKey: ['class-instances'] });
+      },
+    });
+  };
+
   const useAttendanceMutation = (classInstanceId: string) => {
     const qc = useQueryClient();
     return useMutation({
@@ -139,6 +176,10 @@ export function makeHooks(api: Client) {
     useBookMutation,
     useCancelBookingMutation,
     useAttendanceMutation,
+    useSpotMap,
+    useSignWaiverMutation,
+    useAcceptOfferMutation,
+    useCancelMyBookingMutation,
   };
 }
 

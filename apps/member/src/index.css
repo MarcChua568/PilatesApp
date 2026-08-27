@@ -1,0 +1,16 @@
+@import '@pilates/ui/tokens.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 12px;
+  }
+  * {
+    border-color: var(--line);
+  }
+  #root {
+    min-height: 100vh;
+  }
+}

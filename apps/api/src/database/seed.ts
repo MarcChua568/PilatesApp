@@ -169,7 +169,11 @@ async function seed() {
 
   // Fill the next Mat Pilates class to capacity, then add a waitlister.
   const matClass = instances
-    .filter((i) => i.roomId === matRoom.id && i.startTime.getTime() > Date.now())
+    .filter(
+      (i) =>
+        i.name === 'Mat Pilates' &&
+        i.startTime.getTime() > Date.now() + 86_400_000,
+    )
     .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())[0];
   if (matClass) {
     matClass.capacity = 2;
@@ -185,7 +189,11 @@ async function seed() {
 
   // Book two members onto specific reformer spots for the next Reformer Flow.
   const reformerClass = instances
-    .filter((i) => i.roomId === reformerRoom.id && i.name === 'Reformer Flow' && i.startTime.getTime() > Date.now())
+    .filter(
+      (i) =>
+        i.name === 'Reformer Flow' &&
+        i.startTime.getTime() > Date.now() + 86_400_000,
+    )
     .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())[0];
   if (reformerClass && spots.length >= 2) {
     await em.getRepository(Booking).save([
