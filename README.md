@@ -7,9 +7,9 @@ assigned reformer spots, waitlisting, no-show tracking, and reporting.
 
 | Path | What |
 |---|---|
-| [`apps/api`](apps/api) | **Phase 1** — NestJS + PostgreSQL REST API. Complete. |
-| `apps/admin` | **Phase 2** — studio staff/admin web app (Vite + React). In progress. |
-| `apps/member` | **Phase 2b** — member-facing booking web app. Not started. |
+| [`apps/api`](apps/api) | **Phase 1** — NestJS + PostgreSQL REST API. |
+| [`apps/admin`](apps/admin) | **Phase 2a** — studio staff/admin web app (Vite + React), port 5173. |
+| [`apps/member`](apps/member) | **Phase 2b** — member-facing booking web app (mobile-first), port 5174. |
 | [`packages/ui`](packages/ui) | Tailwind design-token preset + shared primitives. |
 | [`packages/api-client`](packages/api-client) | Typed API client + JWT refresh + TanStack Query hooks. |
 | [`docs/`](docs) | Specs, plans, and UX research. |
@@ -28,6 +28,9 @@ npm run start:dev                 # http://localhost:3000
 
 # Admin panel (separate terminal)
 npm --workspace apps/admin run dev   # http://localhost:5173
+
+# Member app (separate terminal)
+npm --workspace apps/member run dev  # http://localhost:5174
 ```
 
 Seed logins (password `password123`): `admin@studio.test`, `staff1@studio.test`,
