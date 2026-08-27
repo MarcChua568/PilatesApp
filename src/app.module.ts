@@ -10,6 +10,7 @@ import { RoomsModule } from './rooms/rooms.module';
 import { SettingsModule } from './settings/settings.module';
 import { ClassTemplatesModule } from './classes/class-templates.module';
 import { ClassInstancesModule } from './classes/class-instances.module';
+import { BookingsModule } from './bookings/bookings.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ClassInstancesModule } from './classes/class-instances.module';
     SettingsModule,
     ClassTemplatesModule,
     ClassInstancesModule,
+    BookingsModule,
   ],
   controllers: [HealthController],
 })

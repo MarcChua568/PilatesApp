@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -26,6 +26,13 @@ export class UsersService {
     role?: Role;
   }): Promise<User> {
     const user = this.usersRepo.create(data);
+    return this.usersRepo.save(user);
+  }
+
+  async signWaiver(userId: string): Promise<User> {
+    const user = await this.usersRepo.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+    user.healthWaiverSignedAt = new Date();
     return this.usersRepo.save(user);
   }
 }

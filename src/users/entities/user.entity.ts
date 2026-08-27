@@ -29,6 +29,14 @@ export class User {
   @Column({ type: 'enum', enum: Role, default: Role.MEMBER })
   role: Role;
 
+  // Must be non-null before a member's first `booked` booking (first-visit gate).
+  @Column({
+    name: 'health_waiver_signed_at',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  healthWaiverSignedAt: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
