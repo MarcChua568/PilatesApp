@@ -30,6 +30,11 @@ export class CreateBookingDto {
   @IsUUID()
   spotId?: string;
 
+  /** Staff/admin only: book on behalf of this member. Ignored for members. */
+  @IsOptional()
+  @IsUUID()
+  memberId?: string;
+
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(10)

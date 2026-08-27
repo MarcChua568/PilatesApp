@@ -31,7 +31,12 @@ export class BookingsController {
 
   @Post()
   book(@CurrentUser() user: User, @Body() dto: CreateBookingDto) {
-    return this.capacityService.book(user.id, dto);
+    // Only staff/admin may book on behalf of another member.
+    const memberId =
+      user.role === Role.STAFF || user.role === Role.ADMIN
+        ? dto.memberId
+        : undefined;
+    return this.capacityService.book(user.id, { ...dto, memberId });
   }
 
   @Post(':id/accept-offer')

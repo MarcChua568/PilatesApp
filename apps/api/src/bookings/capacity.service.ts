@@ -25,6 +25,12 @@ export interface BookParams {
   classInstanceId: string;
   spotId?: string | null;
   guests?: GuestInput[];
+  /**
+   * When a staff/admin books on behalf of a member, the attendee. The caller
+   * (bookerUserId) is still recorded as bookedById. Ignored for self-booking —
+   * the controller only forwards this for non-member roles.
+   */
+  memberId?: string;
 }
 
 const ACTIVE_STATUSES = [BookingStatus.BOOKED, BookingStatus.WAITLISTED];
@@ -67,13 +73,18 @@ export class CapacityService {
         throw new BadRequestException('This class has already started');
       }
 
-      const booker = await manager.findOne(User, {
-        where: { id: bookerUserId },
+      // The attendee: the caller for a self-booking, or the named member when a
+      // staff member books on someone's behalf.
+      const attendeeId = params.memberId ?? bookerUserId;
+      const attendee = await manager.findOne(User, {
+        where: { id: attendeeId },
       });
-      if (!booker) throw new NotFoundException('User not found');
-      if (!booker.healthWaiverSignedAt) {
+      if (!attendee) throw new NotFoundException('User not found');
+      if (!attendee.healthWaiverSignedAt) {
         throw new ForbiddenException(
-          'You must sign the health waiver before booking a class',
+          params.memberId
+            ? 'That member must sign the health waiver before being booked'
+            : 'You must sign the health waiver before booking a class',
         );
       }
 
@@ -87,7 +98,7 @@ export class CapacityService {
 
       const existing = await manager.findOne(Booking, {
         where: {
-          memberId: bookerUserId,
+          memberId: attendeeId,
           classInstanceId: params.classInstanceId,
           status: In(ACTIVE_STATUSES),
         },
@@ -118,7 +129,7 @@ export class CapacityService {
         const rows: Booking[] = [];
         rows.push(
           manager.create(Booking, {
-            memberId: bookerUserId,
+            memberId: attendeeId,
             bookedById: bookerUserId,
             classInstanceId: params.classInstanceId,
             spotId: spotIds[0],
@@ -164,7 +175,7 @@ export class CapacityService {
         .getOne();
 
       const booking = manager.create(Booking, {
-        memberId: bookerUserId,
+        memberId: attendeeId,
         bookedById: bookerUserId,
         classInstanceId: params.classInstanceId,
         status: BookingStatus.WAITLISTED,

@@ -33,6 +33,8 @@ export interface BookInput {
   classInstanceId: string;
   spotId?: string;
   guests?: { name: string; email?: string; spotId?: string }[];
+  /** Staff/admin only: book on behalf of this member. */
+  memberId?: string;
 }
 
 export function createClient(http: Http) {
