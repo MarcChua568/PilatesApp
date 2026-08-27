@@ -10,6 +10,7 @@ describe('UsersService', () => {
     findOne: jest.fn(),
     create: jest.fn((data) => data),
     save: jest.fn((data) => Promise.resolve({ id: 'u1', ...data })),
+    createQueryBuilder: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -41,5 +42,24 @@ describe('UsersService', () => {
     });
     const user = await service.findByEmail('a@b.com');
     expect(user?.id).toBe('u1');
+  });
+
+  it('lists members with a search filter and total count', async () => {
+    const qb = {
+      andWhere: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      getManyAndCount: jest.fn().mockResolvedValue([[{ id: 'u1' }], 1]),
+    };
+    repoMock.createQueryBuilder.mockReturnValueOnce(qb);
+    const result = await service.list({
+      role: 'member',
+      q: 'ann',
+      page: 1,
+      pageSize: 20,
+    });
+    expect(result).toEqual({ data: [{ id: 'u1' }], total: 1 });
+    expect(qb.andWhere).toHaveBeenCalledTimes(2);
   });
 });

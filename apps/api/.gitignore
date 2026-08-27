@@ -4,7 +4,9 @@ coverage/
 .env
 *.log
 .DS_Store
-*.tsbuildinfo
 
 # Claude Code local worktrees / session state
 .claude/
+
+# TS incremental build cache
+*.tsbuildinfo
