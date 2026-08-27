@@ -5,6 +5,7 @@ import { LoginPage } from '@/pages/LoginPage';
 import { PlaceholderPage } from '@/pages/PlaceholderPage';
 import { InstructorsPage } from '@/pages/InstructorsPage';
 import { RoomsPage } from '@/pages/RoomsPage';
+import { ClassesPage } from '@/pages/ClassesPage';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -18,7 +19,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/schedule" replace /> },
       { path: 'schedule', element: <PlaceholderPage title="Schedule" /> },
-      { path: 'classes', element: <PlaceholderPage title="Classes" /> },
+      { path: 'classes', element: <ClassesPage /> },
       { path: 'instructors', element: <InstructorsPage /> },
       { path: 'rooms', element: <RoomsPage /> },
       { path: 'reports', element: <PlaceholderPage title="Reports" /> },
