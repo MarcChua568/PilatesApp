@@ -9,6 +9,7 @@ import { InstructorsModule } from './instructors/instructors.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { SettingsModule } from './settings/settings.module';
 import { ClassTemplatesModule } from './classes/class-templates.module';
+import { ClassInstancesModule } from './classes/class-instances.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ClassTemplatesModule } from './classes/class-templates.module';
     RoomsModule,
     SettingsModule,
     ClassTemplatesModule,
+    ClassInstancesModule,
   ],
   controllers: [HealthController],
 })
