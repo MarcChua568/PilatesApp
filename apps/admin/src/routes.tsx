@@ -2,12 +2,14 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { RequireStaff } from '@/auth/RequireStaff';
 import { AppShell } from '@/components/AppShell';
 import { LoginPage } from '@/pages/LoginPage';
-import { PlaceholderPage } from '@/pages/PlaceholderPage';
 import { InstructorsPage } from '@/pages/InstructorsPage';
 import { RoomsPage } from '@/pages/RoomsPage';
 import { ClassesPage } from '@/pages/ClassesPage';
 import { SchedulePage } from '@/pages/SchedulePage';
 import { ClassDetailPage } from '@/pages/ClassDetailPage';
+import { ReportsPage } from '@/pages/ReportsPage';
+import { AnnouncementsPage } from '@/pages/AnnouncementsPage';
+import { SettingsPage } from '@/pages/SettingsPage';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -25,16 +27,13 @@ export const router = createBrowserRouter([
       { path: 'classes', element: <ClassesPage /> },
       { path: 'instructors', element: <InstructorsPage /> },
       { path: 'rooms', element: <RoomsPage /> },
-      { path: 'reports', element: <PlaceholderPage title="Reports" /> },
-      {
-        path: 'announcements',
-        element: <PlaceholderPage title="Announcements" />,
-      },
+      { path: 'reports', element: <ReportsPage /> },
+      { path: 'announcements', element: <AnnouncementsPage /> },
       {
         path: 'settings',
         element: (
           <RequireStaff role="admin">
-            <PlaceholderPage title="Settings" />
+            <SettingsPage />
           </RequireStaff>
         ),
       },
