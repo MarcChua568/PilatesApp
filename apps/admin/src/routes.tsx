@@ -3,6 +3,8 @@ import { RequireStaff } from '@/auth/RequireStaff';
 import { AppShell } from '@/components/AppShell';
 import { LoginPage } from '@/pages/LoginPage';
 import { PlaceholderPage } from '@/pages/PlaceholderPage';
+import { InstructorsPage } from '@/pages/InstructorsPage';
+import { RoomsPage } from '@/pages/RoomsPage';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -17,8 +19,8 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/schedule" replace /> },
       { path: 'schedule', element: <PlaceholderPage title="Schedule" /> },
       { path: 'classes', element: <PlaceholderPage title="Classes" /> },
-      { path: 'instructors', element: <PlaceholderPage title="Instructors" /> },
-      { path: 'rooms', element: <PlaceholderPage title="Rooms" /> },
+      { path: 'instructors', element: <InstructorsPage /> },
+      { path: 'rooms', element: <RoomsPage /> },
       { path: 'reports', element: <PlaceholderPage title="Reports" /> },
       {
         path: 'announcements',
