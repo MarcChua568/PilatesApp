@@ -44,7 +44,22 @@ describe('SettingsService', () => {
       id: 1,
       cancellationWindowHours: 2,
     });
-    const settings = await service.update(4);
+    const settings = await service.update({ cancellationWindowHours: 4 });
     expect(settings.cancellationWindowHours).toBe(4);
+  });
+
+  it('updates multiple settings at once and leaves others untouched', async () => {
+    repoMock.findOne.mockResolvedValueOnce({
+      id: 1,
+      cancellationWindowHours: 2,
+      maxSeatsPerBooking: 1,
+    });
+    const settings = await service.update({
+      maxSeatsPerBooking: 5,
+      waitlistOfferTtlMinutes: 20,
+    });
+    expect(settings.maxSeatsPerBooking).toBe(5);
+    expect(settings.waitlistOfferTtlMinutes).toBe(20);
+    expect(settings.cancellationWindowHours).toBe(2);
   });
 });

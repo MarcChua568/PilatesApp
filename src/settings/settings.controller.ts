@@ -19,6 +19,6 @@ export class SettingsController {
   @Roles(Role.ADMIN)
   @Patch()
   update(@Body() dto: UpdateSettingsDto) {
-    return this.settingsService.update(dto.cancellationWindowHours);
+    return this.settingsService.update(dto);
   }
 }

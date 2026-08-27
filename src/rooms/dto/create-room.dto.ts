@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class CreateRoomDto {
   @IsString()
@@ -7,4 +7,8 @@ export class CreateRoomDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  hasAssignedSpots?: boolean;
 }

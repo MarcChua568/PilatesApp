@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { StudioSettings } from './entities/studio-settings.entity';
+import { UpdateSettingsDto } from './dto/update-settings.dto';
 
 @Injectable()
 export class SettingsService {
@@ -23,9 +24,9 @@ export class SettingsService {
     return this.repo.save(created);
   }
 
-  async update(cancellationWindowHours: number): Promise<StudioSettings> {
+  async update(dto: UpdateSettingsDto): Promise<StudioSettings> {
     const settings = await this.get();
-    settings.cancellationWindowHours = cancellationWindowHours;
+    Object.assign(settings, dto);
     return this.repo.save(settings);
   }
 }
