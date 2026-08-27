@@ -81,11 +81,12 @@ export function createHttp(opts: HttpOptions) {
   }
 
   async function tryRefresh(): Promise<boolean> {
-    const token = accessToken ?? getRefreshToken();
-    if (!token) return false;
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) return false;
     const res = await fetch(`${opts.baseUrl}/auth/refresh`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
     });
     if (!res.ok) return false;
     const data = (await parse(res)) as {

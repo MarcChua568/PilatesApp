@@ -57,7 +57,24 @@ export class AuthService {
     return this.issueTokens(user.id, user.role);
   }
 
-  async refresh(userId: string, role: string) {
-    return this.issueTokens(userId, role);
+  /**
+   * Exchange a valid refresh token (signed with JWT_REFRESH_SECRET) for a fresh
+   * token pair. Verified here rather than via a passport guard because the guard
+   * chain is bound to the access secret.
+   */
+  async refreshFromToken(refreshToken: string) {
+    let payload: { sub: string; role: string };
+    try {
+      payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: process.env.JWT_REFRESH_SECRET,
+      });
+    } catch {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+
+    const user = await this.usersService.findById(payload.sub);
+    if (!user) throw new UnauthorizedException('Invalid refresh token');
+
+    return this.issueTokens(user.id, user.role);
   }
 }

@@ -52,19 +52,34 @@ describe('Auth (e2e)', () => {
       .expect(401);
   });
 
-  it('refreshes tokens with a valid access token', async () => {
+  it('exchanges a valid refresh token for a fresh token pair', async () => {
     const login = await request(app.getHttpServer())
       .post('/auth/login')
       .send({ email, password: 'password1' })
       .expect(201);
     const res = await request(app.getHttpServer())
       .post('/auth/refresh')
-      .set('Authorization', `Bearer ${login.body.accessToken}`)
+      .send({ refreshToken: login.body.refreshToken })
       .expect(201);
     expect(res.body.accessToken).toBeDefined();
+    expect(res.body.refreshToken).toBeDefined();
   });
 
-  it('rejects refresh without a token', async () => {
-    await request(app.getHttpServer()).post('/auth/refresh').expect(401);
+  it('rejects refresh with a bogus token', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/refresh')
+      .send({ refreshToken: 'not-a-jwt' })
+      .expect(401);
+  });
+
+  it('rejects an access token used as a refresh token', async () => {
+    const login = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email, password: 'password1' })
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/auth/refresh')
+      .send({ refreshToken: login.body.accessToken })
+      .expect(401);
   });
 });

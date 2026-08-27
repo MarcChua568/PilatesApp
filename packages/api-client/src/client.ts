@@ -44,7 +44,8 @@ export function createClient(http: Http) {
         http.post<Tokens>('/auth/login', { email, password }),
       register: (body: { email: string; password: string; fullName: string; phone?: string }) =>
         http.post<Tokens>('/auth/register', body),
-      refresh: () => http.post<Tokens>('/auth/refresh'),
+      refresh: (refreshToken: string) =>
+        http.post<Tokens>('/auth/refresh', { refreshToken }),
     },
 
     me: {

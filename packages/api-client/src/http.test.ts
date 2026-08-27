@@ -8,14 +8,16 @@ function jsonResponse(body: unknown, status = 200) {
   });
 }
 
-function memStorage() {
-  const m = new Map<string, string>();
+function memStorage(seed?: Record<string, string>) {
+  const m = new Map<string, string>(Object.entries(seed ?? {}));
   return {
     getItem: (k: string) => m.get(k) ?? null,
     setItem: (k: string, v: string) => void m.set(k, v),
     removeItem: (k: string) => void m.delete(k),
   };
 }
+
+const withRefresh = { 'pilates.refreshToken': 'stored-refresh' };
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -30,7 +32,7 @@ describe('createHttp refresh-retry', () => {
       .mockResolvedValueOnce(jsonResponse({ ok: true }));
     vi.stubGlobal('fetch', fetchMock);
 
-    const http = createHttp({ baseUrl: 'http://x', storage: memStorage() });
+    const http = createHttp({ baseUrl: 'http://x', storage: memStorage(withRefresh) });
     http.setAccessToken('old');
     const result = await http.get('/instructors');
 
@@ -51,7 +53,7 @@ describe('createHttp refresh-retry', () => {
     const onLogout = vi.fn();
     const http = createHttp({
       baseUrl: 'http://x',
-      storage: memStorage(),
+      storage: memStorage(withRefresh),
       onLogout,
     });
     http.setAccessToken('old');
@@ -66,7 +68,7 @@ describe('createHttp refresh-retry', () => {
       .fn()
       .mockResolvedValueOnce(jsonResponse({ message: 'bad creds' }, 401));
     vi.stubGlobal('fetch', fetchMock);
-    const http = createHttp({ baseUrl: 'http://x', storage: memStorage() });
+    const http = createHttp({ baseUrl: 'http://x', storage: memStorage(withRefresh) });
 
     await expect(
       http.post('/auth/login', { email: 'a', password: 'b' }),
