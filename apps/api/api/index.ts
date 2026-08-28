@@ -8,13 +8,12 @@
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express from 'express';
-import serverlessExpress from '@codegenie/serverless-express';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import { AppModule } from '../dist/app.module';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import { configureApp } from '../dist/setup';
 
-let handlerPromise: Promise<ReturnType<typeof serverlessExpress>> | undefined;
+let appPromise: Promise<express.Express> | undefined;
 
 async function build() {
   const expressApp = express();
@@ -25,11 +24,13 @@ async function build() {
   );
   configureApp(app);
   await app.init();
-  return serverlessExpress({ app: expressApp });
+  return expressApp;
 }
 
+// Vercel's Node runtime calls this with plain (req, res), same signature an
+// Express app already implements — no Lambda-event adapter needed.
 export default async function handler(req: unknown, res: unknown) {
-  if (!handlerPromise) handlerPromise = build();
-  const h = await handlerPromise;
-  return (h as (req: unknown, res: unknown) => unknown)(req, res);
+  if (!appPromise) appPromise = build();
+  const expressApp = await appPromise;
+  return (expressApp as unknown as (req: unknown, res: unknown) => unknown)(req, res);
 }
