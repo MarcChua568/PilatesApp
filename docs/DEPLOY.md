@@ -57,8 +57,11 @@ serverless entrypoint `apps/api/api/index.ts`, and the cron route
    (First hit after idle is slow — cold start.)
 
 The `crons` block in `apps/api/vercel.json` makes Vercel call
-`GET /internal/sweep` every 10 minutes with `Authorization: Bearer $CRON_SECRET`
-— that runs the no-show sweep and lapses stale waitlist offers.
+`GET /internal/sweep` once daily with `Authorization: Bearer $CRON_SECRET`
+— that runs the no-show sweep and lapses stale waitlist offers. (Hobby-tier
+Vercel accounts only allow daily cron schedules; upgrade to Pro or use an
+external scheduler hitting `/internal/sweep` with `SWEEP_SECRET` for more
+frequent sweeps.)
 
 ## 3 · Frontend projects (do this twice)
 

@@ -10,5 +10,5 @@
     }
   },
   "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }],
-  "crons": [{ "path": "/internal/sweep", "schedule": "*/10 * * * *" }]
+  "crons": [{ "path": "/internal/sweep", "schedule": "0 8 * * *" }]
 }
