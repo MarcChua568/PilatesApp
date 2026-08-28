@@ -3,28 +3,7 @@ import { Check } from 'lucide-react';
 import { Reveal } from '@/components/site/Reveal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-
-const PLANS = [
-  {
-    name: 'Intro offer',
-    price: '₱1,800',
-    unit: 'for 2 weeks',
-    features: ['Unlimited classes for 14 days', 'Reformer + mat', 'New clients only'],
-    featured: true,
-  },
-  {
-    name: 'Class pack',
-    price: '₱7,500',
-    unit: '10 classes',
-    features: ['Book any class', 'Valid 90 days', 'Shareable with a friend'],
-  },
-  {
-    name: 'Membership',
-    price: '₱6,500',
-    unit: 'per month',
-    features: ['8 classes / month', 'Priority waitlist', 'Guest passes'],
-  },
-];
+import { PLANS } from '@/lib/plans';
 
 export function PricingPage() {
   return (
@@ -35,13 +14,13 @@ export function PricingPage() {
           Simple, no lock-in
         </h1>
         <p className="mt-2 text-sm text-muted">
-          Packages are illustrative for now — billing isn't wired up yet.
+          Checkout is a preview — payment isn't connected yet.
         </p>
       </Reveal>
 
       <div className="mt-10 grid gap-5 md:grid-cols-3">
         {PLANS.map((p, i) => (
-          <Reveal key={p.name} delay={i * 0.06}>
+          <Reveal key={p.slug} delay={i * 0.06}>
             <Card
               className={p.featured ? 'border-primary/50 bg-primary/[0.04]' : ''}
             >
@@ -67,7 +46,7 @@ export function PricingPage() {
                   variant={p.featured ? 'default' : 'outline'}
                   asChild
                 >
-                  <Link to="/classes">Get started</Link>
+                  <Link to={`/checkout/${p.slug}`}>Get started</Link>
                 </Button>
               </CardContent>
             </Card>

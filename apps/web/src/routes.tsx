@@ -6,6 +6,7 @@ import { HomePage } from '@/pages/HomePage';
 import { ClassesPage } from '@/pages/ClassesPage';
 import { InstructorsPage } from '@/pages/InstructorsPage';
 import { PricingPage } from '@/pages/PricingPage';
+import { CheckoutPage } from '@/pages/CheckoutPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { WaiverPage } from '@/pages/book/WaiverPage';
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
       { path: 'classes', element: <ClassesPage /> },
       { path: 'instructors', element: <InstructorsPage /> },
       { path: 'pricing', element: <PricingPage /> },
+      { path: 'checkout/:slug', element: <CheckoutPage /> },
       { path: 'login', element: <LoginPage /> },
       { path: 'register', element: <RegisterPage /> },
       {
