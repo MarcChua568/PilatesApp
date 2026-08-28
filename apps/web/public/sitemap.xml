@@ -12,4 +12,25 @@
   <url><loc>https://milewellness.ph/location</loc><priority>0.7</priority></url>
   <url><loc>https://milewellness.ph/contact</loc><priority>0.6</priority></url>
   <url><loc>https://milewellness.ph/shop</loc><priority>0.4</priority></url>
+  <url><loc>https://milewellness.ph/classes/reformer-flow</loc><priority>0.6</priority></url>
+  <url><loc>https://milewellness.ph/classes/beginner-reformer</loc><priority>0.6</priority></url>
+  <url><loc>https://milewellness.ph/classes/athletic-reformer</loc><priority>0.6</priority></url>
+  <url><loc>https://milewellness.ph/classes/mat-pilates</loc><priority>0.6</priority></url>
+  <url><loc>https://milewellness.ph/classes/gentle-mat</loc><priority>0.6</priority></url>
+  <url><loc>https://milewellness.ph/classes/barre-burn</loc><priority>0.6</priority></url>
+  <url><loc>https://milewellness.ph/classes/sunday-restorative</loc><priority>0.6</priority></url>
+  <url><loc>https://milewellness.ph/events/reformer-deep-dive</loc><priority>0.6</priority></url>
+  <url><loc>https://milewellness.ph/events/breathwork-sunday-august</loc><priority>0.6</priority></url>
+  <url><loc>https://milewellness.ph/events/barre-x-brunch</loc><priority>0.6</priority></url>
+  <url><loc>https://milewellness.ph/events/mile-community-class</loc><priority>0.6</priority></url>
+  <url><loc>https://milewellness.ph/events/prenatal-movement-intro</loc><priority>0.6</priority></url>
+  <url><loc>https://milewellness.ph/events/mobility-lab</loc><priority>0.6</priority></url>
+  <url><loc>https://milewellness.ph/instructors/9781fef3-a295-4792-97e4-d4fdebd031e6</loc><priority>0.5</priority></url>
+  <url><loc>https://milewellness.ph/instructors/10f9af64-db88-4a64-a2cc-69d5656b1caa</loc><priority>0.5</priority></url>
+  <url><loc>https://milewellness.ph/instructors/0c715a85-e9ef-461b-b3ec-dbb6d27a97a8</loc><priority>0.5</priority></url>
+  <url><loc>https://milewellness.ph/instructors/ba033ad0-f91b-4422-b659-22ba85f75cda</loc><priority>0.5</priority></url>
+  <url><loc>https://milewellness.ph/instructors/53539dba-8051-46e0-959a-c5ee43ac47e0</loc><priority>0.5</priority></url>
+  <url><loc>https://milewellness.ph/instructors/0c94c9b8-abdb-4170-b366-a2a25cced7a2</loc><priority>0.5</priority></url>
+  <url><loc>https://milewellness.ph/promo/intro-offer</loc><priority>0.4</priority></url>
+  <url><loc>https://milewellness.ph/promo/bring-a-friend</loc><priority>0.4</priority></url>
 </urlset>

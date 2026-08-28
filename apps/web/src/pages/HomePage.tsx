@@ -253,9 +253,19 @@ export function HomePage() {
             <p className="mt-3 text-deep-fg/70">
               The intro offer — enough to find your rhythm.
             </p>
-            <Button size="lg" className="mt-8" asChild>
-              <Link to="/pricing">See the intro offer</Link>
-            </Button>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Button size="lg" asChild>
+                <Link to="/pricing">See the intro offer</Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-deep-fg/40 text-deep-fg hover:bg-deep-fg/10"
+                asChild
+              >
+                <Link to="/start">Find your first class</Link>
+              </Button>
+            </div>
           </Reveal>
         </div>
       </section>

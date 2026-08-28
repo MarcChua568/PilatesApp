@@ -24,14 +24,16 @@ export function ClassTypesPage() {
         </h1>
         <p className="mt-3 max-w-xl text-muted">
           Every class is capped small and taught by an instructor who watches
-          you. New to MILE? Start with a beginner track or the intro offer.
+          you.
         </p>
-        <Link
-          to="/schedule"
-          className="mt-4 inline-block text-sm text-primary hover:underline"
-        >
-          See this week's timetable →
-        </Link>
+        <div className="mt-4 flex flex-wrap gap-4 text-sm">
+          <Link to="/start" className="text-primary hover:underline">
+            New to MILE? Find your first class →
+          </Link>
+          <Link to="/schedule" className="text-primary hover:underline">
+            See this week's timetable →
+          </Link>
+        </div>
       </Reveal>
 
       {isLoading ? (
