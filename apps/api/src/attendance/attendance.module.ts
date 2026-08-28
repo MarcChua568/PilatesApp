@@ -10,6 +10,6 @@ import { BookingsModule } from '../bookings/bookings.module';
   imports: [TypeOrmModule.forFeature([Booking]), BookingsModule],
   providers: [AttendanceService, NoShowSweepService],
   controllers: [AttendanceController],
-  exports: [AttendanceService],
+  exports: [AttendanceService, NoShowSweepService],
 })
 export class AttendanceModule {}

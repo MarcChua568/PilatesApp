@@ -15,19 +15,32 @@ import { BookingsModule } from './bookings/bookings.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
 import { ReportsModule } from './reports/reports.module';
+import { InternalModule } from './internal/internal.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [databaseConfig] }),
-    ScheduleModule.forRoot(),
+    // In-process cron for local/persistent hosts. On serverless (Vercel) it
+    // never fires — an external scheduler hits POST /internal/sweep instead.
+    ...(process.env.DISABLE_IN_PROCESS_CRON === 'true'
+      ? []
+      : [ScheduleModule.forRoot()]),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
         url: config.get<string>('database.url'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+        // autoLoadEntities picks up every entity registered via forFeature(),
+        // so there's no runtime filesystem glob — works when bundled (serverless).
+        autoLoadEntities: true,
         synchronize: false,
+        migrationsRun: false,
+        ssl:
+          process.env.DATABASE_SSL === 'true'
+            ? { rejectUnauthorized: false }
+            : undefined,
+        // Serverless invocations must not each hold a big pool open.
+        extra: { max: Number(process.env.DB_POOL_MAX ?? 5) },
       }),
     }),
     UsersModule,
@@ -41,6 +54,7 @@ import { ReportsModule } from './reports/reports.module';
     AttendanceModule,
     AnnouncementsModule,
     ReportsModule,
+    InternalModule,
   ],
   controllers: [HealthController],
 })
