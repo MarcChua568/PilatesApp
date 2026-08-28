@@ -13,7 +13,9 @@ export function PageHeader({
     <div className="mb-6 flex items-end justify-between gap-4">
       <div>
         <p className="eyebrow mb-1">Admin</p>
-        <h1 className="text-2xl">{title}</h1>
+        <h1 className="font-display text-3xl font-light tracking-tightpx">
+          {title}
+        </h1>
         {children}
       </div>
       {action}

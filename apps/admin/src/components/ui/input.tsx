@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { cn } from '@pilates/ui';
 
+const base =
+  'flex w-full rounded-md border border-line bg-surface px-3 text-sm outline-none transition-colors duration-200 ease-editorial placeholder:text-muted/70 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/25 disabled:opacity-50';
+
 export const Input = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement>
@@ -8,10 +11,7 @@ export const Input = React.forwardRef<
   <input
     type={type}
     ref={ref}
-    className={cn(
-      'flex h-9 w-full rounded-md border border-line bg-surface px-3 py-1 text-sm outline-none placeholder:text-muted focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-50',
-      className,
-    )}
+    className={cn(base, 'h-9 py-1', className)}
     {...props}
   />
 ));
@@ -23,10 +23,7 @@ export const Textarea = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <textarea
     ref={ref}
-    className={cn(
-      'flex min-h-[80px] w-full rounded-md border border-line bg-surface px-3 py-2 text-sm outline-none placeholder:text-muted focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-50',
-      className,
-    )}
+    className={cn(base, 'min-h-[80px] py-2', className)}
     {...props}
   />
 ));

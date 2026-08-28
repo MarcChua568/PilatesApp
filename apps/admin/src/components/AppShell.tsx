@@ -1,4 +1,6 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { pageVariants } from '@pilates/ui';
 import {
   CalendarDays,
   Dumbbell,
@@ -24,13 +26,16 @@ const NAV = [
 
 export function AppShell() {
   const { user, logout } = useAuth();
+  const location = useLocation();
 
   return (
     <div className="flex min-h-screen">
       <aside className="flex w-60 shrink-0 flex-col border-r border-line bg-surface">
         <div className="px-5 py-6">
           <p className="eyebrow">Pilates Studio</p>
-          <p className="text-lg font-light tracking-tightpx">Admin</p>
+          <p className="font-display text-xl font-light tracking-tightpx">
+            Studio Admin
+          </p>
         </div>
         <nav className="flex-1 space-y-0.5 px-3">
           {NAV.filter((i) => !i.adminOnly || user?.role === 'admin').map(
@@ -69,7 +74,17 @@ export function AppShell() {
         </div>
       </aside>
       <main className="flex-1 overflow-x-hidden px-8 py-7">
-        <Outlet />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <Outlet />
+          </motion.div>
+        </AnimatePresence>
       </main>
     </div>
   );

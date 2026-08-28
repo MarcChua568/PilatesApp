@@ -4,19 +4,23 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@pilates/ui';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-all duration-200 ease-editorial focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1 focus-visible:ring-offset-bg disabled:pointer-events-none disabled:opacity-50 active:translate-y-px',
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-fg hover:bg-primary/90',
-        outline: 'border border-line bg-transparent hover:bg-line/40',
+        default:
+          'bg-primary text-primary-fg hover:bg-primary/90 hover:-translate-y-px',
+        outline:
+          'border border-line bg-transparent hover:border-primary/50 hover:bg-line/30',
         ghost: 'hover:bg-line/40',
-        danger: 'bg-danger text-primary-fg hover:bg-danger/90',
+        danger:
+          'bg-danger text-primary-fg hover:bg-danger/90 hover:-translate-y-px',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
         default: 'h-9 px-4 py-2',
         sm: 'h-8 px-3 text-xs',
+        lg: 'h-11 px-6',
         icon: 'h-9 w-9',
       },
     },
