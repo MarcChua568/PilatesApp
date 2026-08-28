@@ -44,7 +44,7 @@ export function CheckoutPage() {
         <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-accent/15 text-accent">
           <Check className="h-6 w-6" />
         </div>
-        <h1 className="mt-4 font-display text-3xl font-light tracking-tightpx">
+        <h1 className="mt-4 font-display text-3xl font-light tracking-tight">
           You're all set
         </h1>
         <p className="mt-2 text-sm text-muted">
@@ -75,7 +75,7 @@ export function CheckoutPage() {
 
       <Reveal>
         <p className="eyebrow">Checkout</p>
-        <h1 className="mt-2 font-display text-4xl font-light tracking-tightpx">
+        <h1 className="mt-2 font-display text-4xl font-light tracking-tight">
           {plan.name}
         </h1>
       </Reveal>

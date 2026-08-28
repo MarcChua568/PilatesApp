@@ -19,7 +19,7 @@ export function ClassTypesPage() {
 
       <Reveal>
         <p className="eyebrow">Classes</p>
-        <h1 className="mt-2 font-display text-4xl font-light tracking-tightpx sm:text-5xl">
+        <h1 className="mt-2 font-display text-4xl font-light tracking-tight sm:text-5xl">
           Reformer, mat &amp; barre
         </h1>
         <p className="mt-3 max-w-xl text-muted">

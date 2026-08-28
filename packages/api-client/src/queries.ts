@@ -28,6 +28,7 @@ export const queryKeys = {
   events: ['events'] as const,
   adminEvents: ['events', 'admin'] as const,
   event: (slug: string) => ['events', slug] as const,
+  myEventRsvps: ['events', 'me', 'rsvps'] as const,
   promotions: ['promotions'] as const,
   adminPromotions: ['promotions', 'admin'] as const,
   promotion: (slug: string) => ['promotions', slug] as const,
@@ -206,8 +207,35 @@ export function makeHooks(api: Client) {
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: queryKeys.event(slug) });
         qc.invalidateQueries({ queryKey: queryKeys.events });
+        qc.invalidateQueries({ queryKey: queryKeys.myEventRsvps });
         qc.invalidateQueries({ queryKey: queryKeys.notifications });
       },
+    });
+  };
+
+  const useMyEventRsvps = () =>
+    useQuery({
+      queryKey: queryKeys.myEventRsvps,
+      queryFn: api.events.myRsvps,
+    });
+
+  const useCancelRsvpMutation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: (eventId: string) => api.events.cancelRsvp(eventId),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: queryKeys.myEventRsvps });
+        qc.invalidateQueries({ queryKey: queryKeys.events });
+      },
+    });
+  };
+
+  const useUpdateProfileMutation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: (body: { fullName?: string; phone?: string }) =>
+        api.me.update(body),
+      onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.me }),
     });
   };
 
@@ -399,6 +427,9 @@ export function makeHooks(api: Client) {
     useAdminEvents,
     useEvent,
     useRsvpMutation,
+    useMyEventRsvps,
+    useCancelRsvpMutation,
+    useUpdateProfileMutation,
     useAdminEventMutations,
     usePromotions,
     useAdminPromotions,

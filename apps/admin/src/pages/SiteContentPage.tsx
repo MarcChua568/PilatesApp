@@ -35,7 +35,7 @@ export function SiteContentPage() {
         <div className="space-y-10">
           {Object.entries(groups).map(([group, blocks]) => (
             <section key={group}>
-              <h2 className="mb-3 font-display text-xl font-light tracking-tightpx">
+              <h2 className="mb-3 font-display text-xl font-light tracking-tight">
                 {group}
               </h2>
               <div className="space-y-4">

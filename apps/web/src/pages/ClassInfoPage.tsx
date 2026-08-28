@@ -78,7 +78,7 @@ export function ClassInfoPage() {
             <p className="eyebrow text-deep-fg/70">
               {template.typeLabel ?? template.classType} · {template.intensityLevel}
             </p>
-            <h1 className="mt-2 font-display text-4xl font-light tracking-tightpx sm:text-6xl">
+            <h1 className="mt-2 font-display text-4xl font-light tracking-tight sm:text-6xl">
               {template.name}
             </h1>
             <p className="mt-3 text-deep-fg/80">
@@ -133,8 +133,19 @@ export function ClassInfoPage() {
                   )}
                 </div>
                 <div>
-                  <p className="font-display text-lg">{instructor.name}</p>
+                  <Link
+                    to={`/instructors/${instructor.id}`}
+                    className="font-display text-lg hover:text-primary"
+                  >
+                    {instructor.name}
+                  </Link>
                   <p className="mt-1 text-sm text-muted">{instructor.bio}</p>
+                  <Link
+                    to={`/instructors/${instructor.id}`}
+                    className="mt-1 inline-block text-sm text-primary hover:underline"
+                  >
+                    See their classes →
+                  </Link>
                 </div>
               </div>
             </Reveal>

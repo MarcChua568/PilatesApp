@@ -28,7 +28,7 @@ export function LocationPage() {
 
       <Reveal>
         <p className="eyebrow">Visit</p>
-        <h1 className="mt-2 font-display text-4xl font-light tracking-tightpx sm:text-5xl">
+        <h1 className="mt-2 font-display text-4xl font-light tracking-tight sm:text-5xl">
           Find us in Salcedo Village
         </h1>
       </Reveal>

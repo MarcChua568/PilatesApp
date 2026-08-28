@@ -12,7 +12,7 @@ export function TestimonialRow({ items }: { items: Testimonial[] }) {
       {items.map((t, i) => (
         <Reveal key={t.name} delay={(i % 3) * 0.06}>
           <figure className="flex h-full flex-col rounded-lg border border-line bg-surface p-6">
-            <blockquote className="flex-1 font-display text-lg font-light italic leading-relaxed tracking-tightpx">
+            <blockquote className="flex-1 font-display text-lg font-light italic leading-relaxed tracking-tight">
               “{t.quote}”
             </blockquote>
             <figcaption className="mt-4 text-sm">

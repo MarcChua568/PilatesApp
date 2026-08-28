@@ -34,6 +34,7 @@ export interface Instructor {
   name: string;
   bio: string | null;
   photoUrl: string | null;
+  specialties: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -205,6 +206,7 @@ export interface EventRsvp {
   guests: number;
   createdAt: string;
   updatedAt: string;
+  event?: EventItem;
 }
 
 export interface Promotion {

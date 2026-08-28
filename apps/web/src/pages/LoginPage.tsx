@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { ApiError } from '@pilates/api-client';
 import { useAuth } from '@/auth/useAuth';
+import { Seo } from '@/components/site/Seo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
@@ -40,9 +41,10 @@ export function LoginPage() {
 
   return (
     <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-sm place-items-center px-5">
+      <Seo title="Sign in" path="/login" noindex />
       <div className="w-full">
         <p className="eyebrow mb-1">Welcome back</p>
-        <h1 className="mb-6 font-display text-3xl font-light tracking-tightpx">
+        <h1 className="mb-6 font-display text-3xl font-light tracking-tight">
           Sign in
         </h1>
         <Card>

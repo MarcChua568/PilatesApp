@@ -13,7 +13,7 @@ export function PageHeader({
     <div className="mb-6 flex items-end justify-between gap-4">
       <div>
         <p className="eyebrow mb-1">Admin</p>
-        <h1 className="font-display text-3xl font-light tracking-tightpx">
+        <h1 className="font-display text-3xl font-light tracking-tight">
           {title}
         </h1>
         {children}

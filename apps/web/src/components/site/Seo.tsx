@@ -27,6 +27,7 @@ export function Seo({
 }: SeoProps) {
   const fullTitle = title ? `${title} · ${SITE.name}` : `${SITE.name} — Pilates, Barre & Movement in Makati`;
   const canonical = `${SITE.url}${path}`;
+  const ogImage = image ?? `${SITE.url}/img/hero.jpg`;
   const blocks = jsonLd
     ? Array.isArray(jsonLd)
       ? jsonLd
@@ -45,12 +46,12 @@ export function Seo({
       <meta property="og:description" content={description} />
       <meta property="og:type" content={type} />
       <meta property="og:url" content={canonical} />
-      {image && <meta property="og:image" content={image} />}
+      <meta property="og:image" content={ogImage} />
 
-      <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+      <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
-      {image && <meta name="twitter:image" content={image} />}
+      <meta name="twitter:image" content={ogImage} />
 
       {blocks.map((block, i) => (
         <script key={i} type="application/ld+json">

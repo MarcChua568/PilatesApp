@@ -20,6 +20,9 @@ export class Instructor {
   @Column({ name: 'photo_url', type: 'text', nullable: true })
   photoUrl: string | null;
 
+  @Column({ type: 'jsonb', default: () => "'[]'" })
+  specialties: string[];
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

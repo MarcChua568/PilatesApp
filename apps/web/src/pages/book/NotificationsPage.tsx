@@ -32,7 +32,7 @@ export function NotificationsPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <p className="eyebrow">Your inbox</p>
-          <h1 className="mt-1 font-display text-2xl font-light tracking-tightpx">
+          <h1 className="mt-1 font-display text-2xl font-light tracking-tight">
             Notifications
           </h1>
         </div>

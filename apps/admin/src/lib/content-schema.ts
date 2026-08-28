@@ -96,6 +96,25 @@ export const CONTENT_SCHEMA: BlockDef[] = [
     ],
   },
   {
+    key: 'home.hero',
+    label: 'Home — hero',
+    group: 'Home',
+    fields: [
+      { path: 'eyebrow', label: 'Eyebrow', type: 'text' },
+      { path: 'heading', label: 'Heading', type: 'text' },
+      { path: 'imageUrl', label: 'Background image', type: 'image' },
+    ],
+  },
+  {
+    key: 'home.intro',
+    label: 'Home — intro statement',
+    group: 'Home',
+    fields: [
+      { path: 'eyebrow', label: 'Eyebrow', type: 'text' },
+      { path: 'body', label: 'Statement', type: 'textarea' },
+    ],
+  },
+  {
     key: 'home.testimonials',
     label: 'Home — testimonials',
     group: 'Home',

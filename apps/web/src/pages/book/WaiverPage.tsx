@@ -59,7 +59,7 @@ export function WaiverPage() {
   return (
     <div className="mx-auto max-w-lg px-4 py-10">
       <p className="eyebrow mb-1">One-time step</p>
-      <h1 className="mb-1 font-display text-2xl font-light tracking-tightpx">
+      <h1 className="mb-1 font-display text-2xl font-light tracking-tight">
         Waiver &amp; health intake
       </h1>
       <p className="mb-5 text-sm text-muted">

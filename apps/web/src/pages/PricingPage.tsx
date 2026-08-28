@@ -24,7 +24,7 @@ export function PricingPage() {
 
       <Reveal>
         <p className="eyebrow">Pricing</p>
-        <h1 className="mt-2 font-display text-4xl font-light tracking-tightpx sm:text-5xl">
+        <h1 className="mt-2 font-display text-4xl font-light tracking-tight sm:text-5xl">
           Simple, no lock-in
         </h1>
         <p className="mt-3 max-w-lg text-muted">
@@ -54,7 +54,7 @@ export function PricingPage() {
                       <p className="eyebrow mb-2 text-primary">Most popular</p>
                     )}
                     <p className="font-display text-xl">{p.name}</p>
-                    <p className="mt-2 font-display text-4xl font-light tracking-tightpx">
+                    <p className="mt-2 font-display text-4xl font-light tracking-tight">
                       {peso(p.pricePhp)}
                     </p>
                     <p className="text-sm text-muted">{packageUnit(p)}</p>

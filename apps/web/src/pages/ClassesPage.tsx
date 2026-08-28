@@ -9,6 +9,7 @@ import { useAuth } from '@/auth/useAuth';
 import { availabilityFor } from '@/lib/availability';
 import { AvailabilityPill } from '@/components/AvailabilityPill';
 import { Reveal } from '@/components/site/Reveal';
+import { Seo } from '@/components/site/Seo';
 
 const DAYS_AHEAD = 14;
 
@@ -52,9 +53,14 @@ export function ClassesPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-14">
+      <Seo
+        title="Timetable"
+        description="This week's MILE class timetable — reformer, mat and barre in Salcedo Village, Makati. Book online."
+        path="/schedule"
+      />
       <Reveal>
         <p className="eyebrow">Schedule</p>
-        <h1 className="mt-2 font-display text-4xl font-light tracking-tightpx">
+        <h1 className="mt-2 font-display text-4xl font-light tracking-tight">
           Find a class
         </h1>
         <p className="mt-2 text-sm text-muted">

@@ -37,6 +37,12 @@ export class EventsController {
     return this.service.findAllAdmin();
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('me/rsvps')
+  myRsvps(@CurrentUser() user: User) {
+    return this.service.rsvpsForUser(user.id);
+  }
+
   @Get(':slug')
   findBySlug(@Param('slug') slug: string) {
     return this.service.findBySlug(slug);
@@ -75,5 +81,15 @@ export class EventsController {
     @CurrentUser() user: User,
   ) {
     return this.service.rsvp(id, user.id, dto.guests ?? 0);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/rsvp')
+  @HttpCode(204)
+  cancelRsvp(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.service.cancelRsvp(id, user.id);
   }
 }

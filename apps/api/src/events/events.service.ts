@@ -102,6 +102,36 @@ export class EventsService {
     });
   }
 
+  /** A member's own RSVPs, with the event attached, upcoming first. */
+  async rsvpsForUser(userId: string): Promise<EventRsvp[]> {
+    return this.rsvpRepo.find({
+      where: { userId },
+      relations: { event: true },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  /** Cancel a member's RSVP and give the places back, under the event lock. */
+  async cancelRsvp(eventId: string, userId: string): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
+      const event = await manager
+        .createQueryBuilder(Event, 'e')
+        .setLock('pessimistic_write')
+        .where('e.id = :id', { id: eventId })
+        .getOne();
+      if (!event) throw new NotFoundException('Event not found');
+
+      const rsvp = await manager.findOne(EventRsvp, {
+        where: { eventId, userId },
+      });
+      if (!rsvp) return;
+
+      await manager.remove(rsvp);
+      event.rsvpCount = Math.max(0, event.rsvpCount - (1 + rsvp.guests));
+      await manager.save(event);
+    });
+  }
+
   private fromDto(dto: CreateEventDto | UpdateEventDto): Partial<Event> {
     const out: Partial<Event> = {};
     if (dto.title !== undefined) out.title = dto.title;

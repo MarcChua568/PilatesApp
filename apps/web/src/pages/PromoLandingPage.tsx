@@ -34,7 +34,7 @@ export function PromoLandingPage() {
         <div className="relative mx-auto w-full max-w-3xl px-5 text-center text-deep-fg">
           <Reveal>
             <p className="eyebrow text-deep-fg/60">MILE Wellness</p>
-            <h1 className="mt-3 font-display text-4xl font-light leading-[1.1] tracking-tightpx sm:text-6xl">
+            <h1 className="mt-3 font-display text-4xl font-light leading-[1.1] tracking-tight sm:text-6xl">
               {promo.headline}
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-deep-fg/85">{promo.body}</p>

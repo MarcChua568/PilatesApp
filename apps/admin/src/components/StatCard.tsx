@@ -13,7 +13,7 @@ export function StatCard({
     <Card>
       <CardContent className="pt-5">
         <p className="eyebrow">{label}</p>
-        <p className="mt-1 text-3xl font-light tracking-tightpx">{value}</p>
+        <p className="mt-1 text-3xl font-light tracking-tight">{value}</p>
         {sublabel && <p className="mt-1 text-xs text-muted">{sublabel}</p>}
       </CardContent>
     </Card>

@@ -44,7 +44,7 @@ export function TheSpacePage() {
         <div className="relative mx-auto w-full max-w-6xl px-5 pb-14 text-deep-fg">
           <Reveal>
             <p className="eyebrow text-deep-fg/70">The space</p>
-            <h1 className="mt-2 max-w-2xl font-display text-4xl font-light tracking-tightpx sm:text-6xl">
+            <h1 className="mt-2 max-w-2xl font-display text-4xl font-light tracking-tight sm:text-6xl">
               {hero.heading}
             </h1>
             <p className="mt-4 max-w-xl text-deep-fg/80">{hero.body}</p>
@@ -57,7 +57,7 @@ export function TheSpacePage() {
           <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-5 py-10 sm:grid-cols-4">
             {stats.items.map((s) => (
               <div key={s.label}>
-                <p className="font-display text-3xl font-light tracking-tightpx">
+                <p className="font-display text-3xl font-light tracking-tight">
                   {s.value}
                 </p>
                 <p className="mt-1 text-xs uppercase tracking-eyebrow text-muted">
@@ -91,7 +91,7 @@ export function TheSpacePage() {
         </Reveal>
         <Reveal delay={0.1}>
           <p className="eyebrow">The MILE café</p>
-          <h2 className="mt-2 font-display text-3xl font-light tracking-tightpx">
+          <h2 className="mt-2 font-display text-3xl font-light tracking-tight">
             {cafe.heading}
           </h2>
           <p className="mt-4 text-muted">{cafe.body}</p>

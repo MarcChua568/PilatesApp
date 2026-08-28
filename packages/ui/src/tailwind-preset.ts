@@ -25,7 +25,7 @@ const preset: Partial<Config> = {
         display: ['"Fraunces"', 'ui-serif', 'Georgia', 'serif'],
       },
       borderRadius: { sm: '6px', md: '12px', lg: '28px' },
-      letterSpacing: { tightpx: '-0.01em', eyebrow: '0.16em' },
+      letterSpacing: { eyebrow: '0.16em' },
       maxWidth: { prose: '68ch' },
       boxShadow: { none: 'none' },
       transitionTimingFunction: {

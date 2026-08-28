@@ -1,9 +1,32 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Bell, Menu, X } from 'lucide-react';
 import { cn } from '@pilates/ui';
 import { useAuth } from '@/auth/useAuth';
+import { hooks } from '@/lib/api';
 import { Button } from '@/components/ui/button';
+
+function NotificationBell({ solid }: { solid: boolean }) {
+  const { data } = hooks.useNotifications();
+  const unread = (data ?? []).filter((n) => !n.readAt).length;
+  return (
+    <Link
+      to="/book/notifications"
+      aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`}
+      className={cn(
+        'relative transition-colors hover:text-primary',
+        !solid && 'text-deep-fg/90 hover:text-deep-fg',
+      )}
+    >
+      <Bell className="h-5 w-5" />
+      {unread > 0 && (
+        <span className="absolute -right-1.5 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-fg">
+          {unread > 9 ? '9+' : unread}
+        </span>
+      )}
+    </Link>
+  );
+}
 
 const LINKS = [
   { to: '/classes', label: 'Classes' },
@@ -47,7 +70,7 @@ export function SiteHeader({ overHero = false }: { overHero?: boolean }) {
       )}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-        <Link to="/" className="font-display text-xl tracking-tightpx">
+        <Link to="/" className="font-display text-xl tracking-tight">
           MILE<span className="text-primary">.</span>
         </Link>
 
@@ -68,10 +91,11 @@ export function SiteHeader({ overHero = false }: { overHero?: boolean }) {
             </NavLink>
           ))}
           {user ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <Link to="/book/bookings" className="text-sm hover:text-primary">
                 My bookings
               </Link>
+              <NotificationBell solid={solid} />
               <Button
                 size="sm"
                 variant={solid ? 'outline' : 'default'}
@@ -114,6 +138,9 @@ export function SiteHeader({ overHero = false }: { overHero?: boolean }) {
               <>
                 <Link to="/book/bookings" className="text-sm">
                   My bookings
+                </Link>
+                <Link to="/book/notifications" className="text-sm">
+                  Notifications
                 </Link>
                 <button
                   onClick={logout}

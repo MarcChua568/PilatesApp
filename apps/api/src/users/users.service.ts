@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { Role } from '../common/enums/role.enum';
 import { ListUsersDto } from './dto/list-users.dto';
+import { UpdateMeDto } from './dto/update-me.dto';
 
 @Injectable()
 export class UsersService {
@@ -45,6 +46,14 @@ export class UsersService {
     qb.skip((page - 1) * pageSize).take(pageSize);
     const [data, total] = await qb.getManyAndCount();
     return { data, total };
+  }
+
+  async updateProfile(userId: string, dto: UpdateMeDto): Promise<User> {
+    const user = await this.usersRepo.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+    if (dto.fullName !== undefined) user.fullName = dto.fullName;
+    if (dto.phone !== undefined) user.phone = dto.phone || null;
+    return this.usersRepo.save(user);
   }
 
   async signWaiver(userId: string): Promise<User> {

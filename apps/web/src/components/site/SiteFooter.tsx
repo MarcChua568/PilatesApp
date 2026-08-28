@@ -36,7 +36,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl px-5 py-14">
         <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div>
-            <p className="font-display text-2xl tracking-tightpx">
+            <p className="font-display text-2xl tracking-tight">
               MILE<span className="text-primary">.</span>
             </p>
             <p className="mt-1 text-xs uppercase tracking-eyebrow text-deep-fg/50">

@@ -24,6 +24,15 @@ export function HomePage() {
     .slice(0, 3);
   const promoCards = (promos ?? []).filter((p) => !p.showInTopBar).slice(0, 2);
 
+  const heroBlk = block(content, 'home.hero', {
+    eyebrow: 'MILE Wellness · Salcedo Village, Makati',
+    heading: 'A little further every day.',
+    imageUrl: '/img/hero.jpg',
+  });
+  const introBlk = block(content, 'home.intro', {
+    eyebrow: 'Move. Inspire. Live. Evolve.',
+    body: 'A boutique Pilates, barre and movement studio built around small groups, precise teaching and a space you want to be in.',
+  });
   const testimonials = block(content, 'home.testimonials', {
     items: [] as Testimonial[],
   }).items;
@@ -45,7 +54,7 @@ export function HomePage() {
       {/* Hero */}
       <section className="relative flex min-h-[92vh] items-end overflow-hidden">
         <img
-          src="/img/hero.jpg"
+          src={heroBlk.imageUrl || '/img/hero.jpg'}
           alt=""
           className="editorial-img absolute inset-0 h-full w-full object-cover"
         />
@@ -57,15 +66,15 @@ export function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={transitions.editorial}
           >
-            MILE Wellness · Salcedo Village, Makati
+            {heroBlk.eyebrow}
           </motion.p>
           <motion.h1
-            className="mt-3 max-w-3xl font-display text-5xl font-light leading-[1.05] tracking-tightpx sm:text-6xl md:text-7xl"
+            className="mt-3 max-w-3xl font-display text-5xl font-light leading-[1.05] tracking-tight sm:text-6xl md:text-7xl"
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...transitions.editorial, delay: 0.08 }}
           >
-            A little further every day.
+            {heroBlk.heading}
           </motion.h1>
           <motion.div
             className="mt-8 flex flex-wrap gap-3"
@@ -91,10 +100,9 @@ export function HomePage() {
       {/* Intro statement */}
       <section className="mx-auto max-w-prose px-5 py-20 text-center">
         <Reveal>
-          <p className="eyebrow">Move. Inspire. Live. Evolve.</p>
-          <p className="mt-4 font-display text-2xl font-light leading-relaxed tracking-tightpx sm:text-3xl">
-            A boutique Pilates, barre and movement studio built around small
-            groups, precise teaching and a space you want to be in.
+          <p className="eyebrow">{introBlk.eyebrow}</p>
+          <p className="mt-4 font-display text-2xl font-light leading-relaxed tracking-tight sm:text-3xl">
+            {introBlk.body}
           </p>
         </Reveal>
       </section>
@@ -217,7 +225,7 @@ export function HomePage() {
         <Reveal className="flex flex-col items-start justify-between gap-4 rounded-lg border border-line bg-surface p-8 sm:flex-row sm:items-center">
           <div>
             <p className="eyebrow">Find us</p>
-            <p className="mt-1 font-display text-2xl tracking-tightpx">
+            <p className="mt-1 font-display text-2xl tracking-tight">
               {SITE.streetAddress}, {SITE.locality}
             </p>
             <p className="mt-1 text-sm text-muted">{SITE.openingHours[0]}</p>
@@ -239,7 +247,7 @@ export function HomePage() {
         <div className="relative mx-auto max-w-3xl px-5 py-24 text-center text-deep-fg">
           <Reveal>
             <p className="eyebrow text-deep-fg/60">New to MILE?</p>
-            <h2 className="mt-3 font-display text-4xl font-light tracking-tightpx">
+            <h2 className="mt-3 font-display text-4xl font-light tracking-tight">
               Start with three classes for ₱1,800
             </h2>
             <p className="mt-3 text-deep-fg/70">

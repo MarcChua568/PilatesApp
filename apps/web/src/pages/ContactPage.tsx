@@ -39,7 +39,7 @@ export function ContactPage() {
 
       <Reveal>
         <p className="eyebrow">Contact</p>
-        <h1 className="mt-2 font-display text-4xl font-light tracking-tightpx sm:text-5xl">
+        <h1 className="mt-2 font-display text-4xl font-light tracking-tight sm:text-5xl">
           {intro.heading}
         </h1>
         <p className="mt-3 text-muted">{intro.body}</p>
@@ -53,7 +53,7 @@ export function ContactPage() {
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-accent/15 text-accent">
             <Check className="h-6 w-6" />
           </div>
-          <p className="mt-4 font-display text-2xl font-light tracking-tightpx">
+          <p className="mt-4 font-display text-2xl font-light tracking-tight">
             Thanks — we'll reply within one business day.
           </p>
           <p className="mt-2 text-sm text-muted">

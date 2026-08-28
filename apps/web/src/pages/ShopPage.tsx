@@ -18,7 +18,7 @@ export function ShopPage() {
 
       <Reveal>
         <p className="eyebrow">MILE Shop</p>
-        <h1 className="mt-2 font-display text-4xl font-light tracking-tightpx sm:text-5xl">
+        <h1 className="mt-2 font-display text-4xl font-light tracking-tight sm:text-5xl">
           Opening soon
         </h1>
         <p className="mt-4 text-muted">

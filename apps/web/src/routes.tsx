@@ -7,6 +7,9 @@ import { ClassTypesPage } from '@/pages/ClassTypesPage';
 import { ClassInfoPage } from '@/pages/ClassInfoPage';
 import { ClassesPage } from '@/pages/ClassesPage';
 import { InstructorsPage } from '@/pages/InstructorsPage';
+import { InstructorDetailPage } from '@/pages/InstructorDetailPage';
+import { StartPage } from '@/pages/StartPage';
+import { NotFoundPage } from '@/pages/NotFoundPage';
 import { PricingPage } from '@/pages/PricingPage';
 import { CheckoutPage } from '@/pages/CheckoutPage';
 import { AboutPage } from '@/pages/AboutPage';
@@ -35,10 +38,12 @@ export const router = createBrowserRouter([
   {
     element: <SiteLayout />,
     children: [
+      { path: 'start', element: <StartPage /> },
       { path: 'classes', element: <ClassTypesPage /> },
       { path: 'classes/:slug', element: <ClassInfoPage /> },
       { path: 'schedule', element: <ClassesPage /> },
       { path: 'instructors', element: <InstructorsPage /> },
+      { path: 'instructors/:id', element: <InstructorDetailPage /> },
       { path: 'pricing', element: <PricingPage /> },
       { path: 'checkout/:slug', element: <CheckoutPage /> },
       { path: 'about', element: <AboutPage /> },
@@ -86,7 +91,7 @@ export const router = createBrowserRouter([
           { path: 'account', element: <AccountPage /> },
         ],
       },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
-  { path: '*', element: <Navigate to="/" replace /> },
 ]);

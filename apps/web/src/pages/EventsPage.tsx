@@ -37,7 +37,7 @@ export function EventsPage() {
 
       <Reveal>
         <p className="eyebrow">What's on</p>
-        <h1 className="mt-2 font-display text-4xl font-light tracking-tightpx sm:text-5xl">
+        <h1 className="mt-2 font-display text-4xl font-light tracking-tight sm:text-5xl">
           Events &amp; workshops
         </h1>
         <p className="mt-3 max-w-xl text-muted">

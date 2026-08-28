@@ -43,7 +43,7 @@ export function AppShell() {
       <aside className="flex w-60 shrink-0 flex-col border-r border-line bg-surface">
         <div className="px-5 py-6">
           <p className="eyebrow">MILE Wellness</p>
-          <p className="font-display text-xl font-light tracking-tightpx">
+          <p className="font-display text-xl font-light tracking-tight">
             Studio Admin
           </p>
         </div>

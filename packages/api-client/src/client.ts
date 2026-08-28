@@ -59,6 +59,8 @@ export function createClient(http: Http) {
     me: {
       get: () => http.get<UserPublic>('/users/me'),
       signWaiver: () => http.post<UserPublic>('/users/me/waiver'),
+      update: (body: { fullName?: string; phone?: string }) =>
+        http.patch<UserPublic>('/users/me', body),
     },
 
     users: {
@@ -158,6 +160,8 @@ export function createClient(http: Http) {
       remove: (id: string) => http.del<void>(`/events/${id}`),
       rsvp: (id: string, guests = 0) =>
         http.post<EventRsvp>(`/events/${id}/rsvp`, { guests }),
+      cancelRsvp: (id: string) => http.del<void>(`/events/${id}/rsvp`),
+      myRsvps: () => http.get<EventRsvp[]>('/events/me/rsvps'),
     },
 
     promotions: {

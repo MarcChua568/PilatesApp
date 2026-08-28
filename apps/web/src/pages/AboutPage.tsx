@@ -35,7 +35,7 @@ export function AboutPage() {
       <section className="mx-auto grid max-w-6xl gap-10 px-5 py-16 md:grid-cols-2 md:items-center">
         <Reveal>
           <p className="eyebrow">{heroBlk.eyebrow}</p>
-          <h1 className="mt-2 font-display text-4xl font-light leading-[1.1] tracking-tightpx sm:text-5xl">
+          <h1 className="mt-2 font-display text-4xl font-light leading-[1.1] tracking-tight sm:text-5xl">
             {heroBlk.heading}
           </h1>
           <p className="mt-4 text-muted">{heroBlk.body}</p>
@@ -54,7 +54,7 @@ export function AboutPage() {
       <section className="mx-auto max-w-3xl px-5 py-16">
         <Reveal>
           <p className="eyebrow">Our philosophy</p>
-          <h2 className="mt-2 font-display text-3xl font-light tracking-tightpx">
+          <h2 className="mt-2 font-display text-3xl font-light tracking-tight">
             {philosophy.heading}
           </h2>
           <div className="mt-5 space-y-4 text-muted">
@@ -83,7 +83,7 @@ export function AboutPage() {
 
       <section className="mx-auto max-w-3xl px-5 py-16 text-center">
         <Reveal>
-          <h2 className="font-display text-3xl font-light tracking-tightpx">
+          <h2 className="font-display text-3xl font-light tracking-tight">
             Come see for yourself
           </h2>
           <p className="mt-3 text-muted">

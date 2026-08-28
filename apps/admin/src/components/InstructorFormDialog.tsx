@@ -28,12 +28,14 @@ export function InstructorFormDialog({
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
+  const [specialties, setSpecialties] = useState('');
 
   useEffect(() => {
     if (open) {
       setName(instructor?.name ?? '');
       setBio(instructor?.bio ?? '');
       setPhotoUrl(instructor?.photoUrl ?? '');
+      setSpecialties((instructor?.specialties ?? []).join(', '));
     }
   }, [open, instructor]);
 
@@ -43,6 +45,10 @@ export function InstructorFormDialog({
         name,
         bio: bio || undefined,
         photoUrl: photoUrl || undefined,
+        specialties: specialties
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean),
       };
       return instructor
         ? api.instructors.update(instructor.id, body)
@@ -93,6 +99,14 @@ export function InstructorFormDialog({
               value={photoUrl}
               onChange={(e) => setPhotoUrl(e.target.value)}
               placeholder="https://…"
+            />
+          </Field>
+          <Field label="Specialties (comma-separated)" htmlFor="i-spec">
+            <Input
+              id="i-spec"
+              value={specialties}
+              onChange={(e) => setSpecialties(e.target.value)}
+              placeholder="Reformer, Prenatal, Rehab"
             />
           </Field>
           <DialogFooter>

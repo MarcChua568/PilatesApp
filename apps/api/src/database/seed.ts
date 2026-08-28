@@ -150,31 +150,37 @@ async function seed() {
       name: 'Jane Okafor',
       bio: 'Founder. Classical Pilates lineage, 12 years on the reformer. Jane keeps her cueing quiet and specific — you leave knowing exactly which muscles did the work.',
       photoUrl: photo('photo-1544005313-94ddf0286df2'),
+      specialties: ['Reformer', 'Classical Pilates', 'Teacher training'],
     },
     {
       name: 'Sam Lindqvist',
       bio: 'Mat and barre specialist with a dance background. Expect musical, flowing sequences and a strong core focus.',
       photoUrl: photo('photo-1500648767791-00dcc994a43e'),
+      specialties: ['Mat', 'Barre', 'Choreography'],
     },
     {
       name: 'Ana Costa',
       bio: 'Rehab-focused. Ana works with post-injury and pre/post-natal clients and teaches the beginner reformer track.',
       photoUrl: photo('photo-1438761681033-6461ffad8d80'),
+      specialties: ['Beginner reformer', 'Prenatal & postnatal', 'Rehab'],
     },
     {
       name: 'Marcus Bell',
       bio: 'Athletic reformer and jump-board. Former sprinter — his intermediate classes move.',
       photoUrl: photo('photo-1507003211169-0a1dd7228f2d'),
+      specialties: ['Athletic reformer', 'Jump-board', 'Mobility'],
     },
     {
       name: 'Hana Sato',
       bio: 'Slow, precise, breath-led. Hana teaches the gentle mat class and the Sunday restorative.',
       photoUrl: photo('photo-1494790108377-be9c29b29330'),
+      specialties: ['Restorative', 'Breathwork', 'Gentle mat'],
     },
     {
       name: 'Diego Ramos',
       bio: 'Barre and conditioning. High energy, big playlists, always a burnout finisher.',
       photoUrl: photo('photo-1552374196-c4e7ffc6e126'),
+      specialties: ['Barre', 'Conditioning', 'Events'],
     },
   ]);
 
@@ -762,6 +768,15 @@ async function seed() {
 
   // ---- site content blocks (editorial copy for the marketing pages) ----
   const content: Record<string, Record<string, unknown>> = {
+    'home.hero': {
+      eyebrow: 'MILE Wellness · Salcedo Village, Makati',
+      heading: 'A little further every day.',
+      imageUrl: hero('photo-1518611012118-696072aa579a'),
+    },
+    'home.intro': {
+      eyebrow: 'Move. Inspire. Live. Evolve.',
+      body: 'A boutique Pilates, barre and movement studio built around small groups, precise teaching and a space you want to be in.',
+    },
     'home.testimonials': {
       items: [
         {

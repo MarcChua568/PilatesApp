@@ -4,6 +4,7 @@ import { hooks } from '@/lib/api';
 import { useAuth } from '@/auth/useAuth';
 import { errorMessage, toast } from '@/lib/toast';
 import { peso, longDateTime } from '@/lib/format';
+import { eventIcsHref } from '@/lib/ics';
 import { SITE } from '@/lib/seo';
 import { Seo } from '@/components/site/Seo';
 import { Reveal } from '@/components/site/Reveal';
@@ -84,7 +85,7 @@ export function EventDetailPage() {
             >
               ← All events
             </Link>
-            <h1 className="mt-3 font-display text-4xl font-light tracking-tightpx sm:text-6xl">
+            <h1 className="mt-3 font-display text-4xl font-light tracking-tight sm:text-6xl">
               {event.title}
             </h1>
             <p className="mt-3 text-deep-fg/85">{longDateTime(event.startsAt)}</p>
@@ -153,6 +154,13 @@ export function EventDetailPage() {
                 </Button>
               )}
             </div>
+            <a
+              href={eventIcsHref(event)}
+              download={`${event.slug}.ics`}
+              className="mt-3 block text-center text-xs text-primary hover:underline"
+            >
+              Add to calendar
+            </a>
             <p className="mt-3 text-xs text-muted">
               {event.pricePhp === 0
                 ? 'No payment needed.'

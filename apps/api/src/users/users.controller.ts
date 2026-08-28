@@ -1,5 +1,14 @@
-import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
+import { UpdateMeDto } from './dto/update-me.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -21,6 +30,11 @@ export class UsersController {
   @Get('me')
   me(@CurrentUser() user: User) {
     return toPublic(user);
+  }
+
+  @Patch('me')
+  async updateMe(@CurrentUser() user: User, @Body() dto: UpdateMeDto) {
+    return toPublic(await this.usersService.updateProfile(user.id, dto));
   }
 
   @Post('me/waiver')

@@ -1,14 +1,25 @@
 import { Link } from 'react-router-dom';
 import { hooks } from '@/lib/api';
 import { errorMessage, toast } from '@/lib/toast';
+import { shortDate } from '@/lib/format';
 import { BookingCard } from '@/components/BookingCard';
+import { Button } from '@/components/ui/button';
 
 export function MyBookingsPage() {
   const { data: bookings, isLoading, error } = hooks.useMyBookings();
   const { data: instances } = hooks.useClassInstances({});
+  const { data: eventRsvps } = hooks.useMyEventRsvps();
   const cancel = hooks.useCancelMyBookingMutation();
   const accept = hooks.useAcceptOfferMutation();
+  const cancelRsvp = hooks.useCancelRsvpMutation();
   const busy = cancel.isPending || accept.isPending;
+
+  const upcomingRsvps = (eventRsvps ?? [])
+    .filter((r) => r.event && new Date(r.event.startsAt).getTime() >= Date.now())
+    .sort(
+      (a, b) =>
+        +new Date(a.event!.startsAt) - +new Date(b.event!.startsAt),
+    );
 
   const instanceFor = (id: string) => instances?.find((c) => c.id === id);
   const startOf = (id: string) => {
@@ -44,7 +55,49 @@ export function MyBookingsPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-2xl">My bookings</h1>
+      <h1 className="mb-4 font-display text-2xl font-light tracking-tight">
+        My bookings
+      </h1>
+
+      {upcomingRsvps.length > 0 && (
+        <section className="mb-8">
+          <p className="eyebrow mb-2">Events you're going to</p>
+          <div className="space-y-2">
+            {upcomingRsvps.map((r) => (
+              <div
+                key={r.id}
+                className="flex items-center justify-between rounded-md border border-line bg-surface px-4 py-3 text-sm"
+              >
+                <div>
+                  <Link
+                    to={`/events/${r.event!.slug}`}
+                    className="font-medium hover:text-primary"
+                  >
+                    {r.event!.title}
+                  </Link>
+                  <p className="text-muted">
+                    {shortDate(r.event!.startsAt)}
+                    {r.guests > 0 && ` · +${r.guests} guest${r.guests > 1 ? 's' : ''}`}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={cancelRsvp.isPending}
+                  onClick={() =>
+                    cancelRsvp.mutate(r.eventId, {
+                      onSuccess: () => toast.success('RSVP cancelled'),
+                      onError: (e) => toast.error(errorMessage(e)),
+                    })
+                  }
+                >
+                  Cancel
+                </Button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {isLoading && <p className="text-muted">Loading…</p>}
       {error != null && <p className="text-danger">Couldn’t load your bookings.</p>}
