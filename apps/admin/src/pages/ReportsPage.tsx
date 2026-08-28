@@ -42,22 +42,27 @@ export function ReportsPage() {
     { key: 'name', header: 'Class', cell: (r) => r.className },
     {
       key: 'fill',
-      header: 'Booked',
-      cell: (r) => (
-        <div className="flex items-center gap-2">
-          <div className="h-1.5 w-24 overflow-hidden rounded-full bg-line/60">
-            <div
-              className="h-full bg-accent"
-              style={{
-                width: `${Math.min(100, (r.bookedCount / r.capacity) * 100)}%`,
-              }}
-            />
+      header: 'Reserved',
+      cell: (r) => {
+        // For a past class everyone's status has flipped to attended/no-show, so
+        // "reserved" = who held a spot, not the live booked_count.
+        const reserved = r.bookedCount + r.attendedCount + r.noShowCount;
+        return (
+          <div className="flex items-center gap-2">
+            <div className="h-1.5 w-24 overflow-hidden rounded-full bg-line/60">
+              <div
+                className="h-full bg-accent"
+                style={{
+                  width: `${Math.min(100, (reserved / r.capacity) * 100)}%`,
+                }}
+              />
+            </div>
+            <span className="text-xs text-muted">
+              {reserved}/{r.capacity}
+            </span>
           </div>
-          <span className="text-xs text-muted">
-            {r.bookedCount}/{r.capacity}
-          </span>
-        </div>
-      ),
+        );
+      },
     },
     { key: 'wait', header: 'Waitlist', cell: (r) => r.waitlistCount },
     { key: 'att', header: 'Attended', cell: (r) => r.attendedCount },

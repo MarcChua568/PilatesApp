@@ -291,67 +291,118 @@ async function seed() {
   }
 
   // ---- bookings ----
+  // Driven per-member so nobody ends up in 40 classes: each member has a small
+  // set of upcoming reservations and a realistic recent history.
   const now = Date.now();
   const bookings: Partial<Booking>[] = [];
-  const spotIds = spots.map((s) => s.id);
+  const activeMembers = members.filter((m) => m.healthWaiverSignedAt);
+  const future = instances.filter((i) => i.startTime.getTime() > now);
+  const past = instances.filter((i) => i.startTime.getTime() <= now);
+  const seatCount = new Map<string, number>(); // instanceId -> seated
+  const memberHas = new Set<string>(); // `${memberId}:${instanceId}`
+  const spotCursor = new Map<string, number>(); // instanceId -> next spot idx
 
-  for (const ci of instances) {
-    const isPast = ci.startTime.getTime() < now;
-    const usesSpots = ci.roomId === reformerRoom.id;
-    // fill level: past classes mostly full, future classes varied
-    const target = isPast
-      ? Math.round(ci.capacity * (0.7 + rand() * 0.3))
-      : Math.round(ci.capacity * (0.2 + rand() * 0.9));
-    const fill = Math.min(ci.capacity, target);
+  const nextSpot = (ci: ClassInstance): string | null => {
+    if (ci.roomId !== reformerRoom.id) return null;
+    const idx = spotCursor.get(ci.id) ?? 0;
+    spotCursor.set(ci.id, idx + 1);
+    return spots[idx]?.id ?? null;
+  };
+  const sample = <T>(arr: T[], n: number): T[] =>
+    [...arr].sort(() => rand() - 0.5).slice(0, n);
 
-    const shuffled = [...members]
-      .filter((m) => m.healthWaiverSignedAt)
-      .sort(() => rand() - 0.5);
-    let seated = 0;
-    const usedSpots = [...spotIds].sort(() => rand() - 0.5);
-
-    for (const member of shuffled) {
-      if (seated >= fill && !isPast) {
-        // a few future waitlisters on the fuller classes
-        if (seated >= ci.capacity && rand() < 0.5 && seated - ci.capacity < 3) {
-          bookings.push({
-            memberId: member.id,
-            bookedById: member.id,
-            classInstanceId: ci.id,
-            status: BookingStatus.WAITLISTED,
-            waitlistPosition: seated - ci.capacity + 1,
-            bookedAt: new Date(now - rand() * 5 * DAY),
-          });
-          seated++;
-        }
-        continue;
-      }
-      if (seated >= fill) break;
-
-      let status = BookingStatus.BOOKED;
-      if (isPast) {
-        const r = rand();
-        status = r < 0.82 ? BookingStatus.ATTENDED : r < 0.94 ? BookingStatus.NO_SHOW : BookingStatus.BOOKED;
-      }
+  for (const m of activeMembers) {
+    // 2–4 upcoming
+    for (const ci of sample(future, 2 + Math.floor(rand() * 3))) {
+      const key = `${m.id}:${ci.id}`;
+      if (memberHas.has(key)) continue;
+      if ((seatCount.get(ci.id) ?? 0) >= ci.capacity) continue;
+      memberHas.add(key);
+      seatCount.set(ci.id, (seatCount.get(ci.id) ?? 0) + 1);
       bookings.push({
-        memberId: member.id,
-        bookedById: member.id,
+        memberId: m.id,
+        bookedById: m.id,
         classInstanceId: ci.id,
-        spotId: usesSpots ? usedSpots[seated] ?? null : null,
+        spotId: nextSpot(ci),
+        status: BookingStatus.BOOKED,
+        bookedAt: new Date(now - rand() * 8 * DAY),
+      });
+    }
+    // 3–8 past
+    for (const ci of sample(past, 3 + Math.floor(rand() * 6))) {
+      const key = `${m.id}:${ci.id}`;
+      if (memberHas.has(key)) continue;
+      memberHas.add(key);
+      const r = rand();
+      const status =
+        r < 0.83
+          ? BookingStatus.ATTENDED
+          : r < 0.95
+            ? BookingStatus.NO_SHOW
+            : BookingStatus.CANCELLED;
+      bookings.push({
+        memberId: m.id,
+        bookedById: m.id,
+        classInstanceId: ci.id,
+        spotId:
+          status === BookingStatus.CANCELLED ? null : nextSpot(ci),
         status,
         checkedInAt:
           status === BookingStatus.ATTENDED
             ? new Date(ci.startTime.getTime())
             : null,
+        cancelledAt:
+          status === BookingStatus.CANCELLED
+            ? new Date(ci.startTime.getTime() - DAY)
+            : null,
         bookedAt: new Date(ci.startTime.getTime() - (2 + rand() * 6) * DAY),
       });
-      seated++;
     }
-
-    ci.bookedCount = Math.min(seated, ci.capacity);
-    if (!isPast) await em.getRepository(ClassInstance).save(ci);
   }
+
+  // Top a few upcoming classes toward full + add 1–3 waitlisters each.
+  for (const ci of sample(future, 8)) {
+    let seated = seatCount.get(ci.id) ?? 0;
+    const target = Math.min(ci.capacity, seated + 2 + Math.floor(rand() * 5));
+    for (const m of sample(activeMembers, activeMembers.length)) {
+      if (seated >= target) break;
+      const key = `${m.id}:${ci.id}`;
+      if (memberHas.has(key)) continue;
+      memberHas.add(key);
+      seated++;
+      bookings.push({
+        memberId: m.id,
+        bookedById: m.id,
+        classInstanceId: ci.id,
+        spotId: nextSpot(ci),
+        status: BookingStatus.BOOKED,
+        bookedAt: new Date(now - rand() * 4 * DAY),
+      });
+    }
+    seatCount.set(ci.id, seated);
+    if (seated >= ci.capacity) {
+      let pos = 1;
+      for (const m of sample(activeMembers, 1 + Math.floor(rand() * 3))) {
+        const key = `${m.id}:${ci.id}`;
+        if (memberHas.has(key)) continue;
+        memberHas.add(key);
+        bookings.push({
+          memberId: m.id,
+          bookedById: m.id,
+          classInstanceId: ci.id,
+          status: BookingStatus.WAITLISTED,
+          waitlistPosition: pos++,
+          bookedAt: new Date(now - rand() * 3 * DAY),
+        });
+      }
+    }
+  }
+
   await em.getRepository(Booking).save(bookings);
+  for (const ci of future) {
+    ci.bookedCount = Math.min(seatCount.get(ci.id) ?? 0, ci.capacity);
+    await em.getRepository(ClassInstance).save(ci);
+  }
 
   // A guaranteed full class + waitlist offer for demos: next Reformer Flow.
   const showcase = instances
@@ -361,13 +412,13 @@ async function seed() {
     await em
       .getRepository(Booking)
       .delete({ classInstanceId: showcase.id });
-    const takers = members.filter((m) => m.healthWaiverSignedAt).slice(0, showcase.capacity);
+    const takers = activeMembers.slice(1, showcase.capacity + 1);
     await em.getRepository(Booking).save(
       takers.map((m, i) => ({
         memberId: m.id,
         bookedById: m.id,
         classInstanceId: showcase.id,
-        spotId: spotIds[i],
+        spotId: spots[i]?.id ?? null,
         status: BookingStatus.BOOKED,
         bookedAt: new Date(now - 3 * DAY),
       })),

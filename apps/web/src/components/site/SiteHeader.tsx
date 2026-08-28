@@ -33,7 +33,7 @@ export function SiteHeader({ overHero = false }: { overHero?: boolean }) {
         'fixed inset-x-0 top-0 z-40 transition-colors duration-300 ease-editorial',
         solid
           ? 'border-b border-line bg-bg/92 backdrop-blur'
-          : 'bg-transparent text-deep-fg',
+          : 'bg-gradient-to-b from-deep/50 to-transparent text-deep-fg [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]',
       )}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
