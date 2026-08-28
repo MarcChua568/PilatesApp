@@ -20,11 +20,31 @@ export class ClassTemplate {
   @Column()
   name: string;
 
+  @Column({ type: 'varchar', unique: true })
+  slug: string;
+
   @Column({ name: 'class_type', type: 'enum', enum: ClassType })
   classType: ClassType;
 
+  // Optional studio-facing label that overrides the coarse classType on the
+  // public class page (e.g. "Athletic Reformer" instead of just "reformer").
+  @Column({ name: 'type_label', type: 'varchar', nullable: true })
+  typeLabel: string | null;
+
   @Column({ type: 'text', nullable: true })
   description: string | null;
+
+  @Column({ name: 'hero_image_url', type: 'varchar', nullable: true })
+  heroImageUrl: string | null;
+
+  @Column({ name: 'long_description', type: 'text', nullable: true })
+  longDescription: string | null;
+
+  @Column({ name: 'what_to_bring', type: 'jsonb', default: () => "'[]'" })
+  whatToBring: string[];
+
+  @Column({ name: 'who_its_for', type: 'text', nullable: true })
+  whoItsFor: string | null;
 
   @ManyToOne(() => Instructor)
   @JoinColumn({ name: 'instructor_id' })

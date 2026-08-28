@@ -1,5 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { NotFoundException } from '@nestjs/common';
 import { ClassTemplatesService } from './class-templates.service';
 import { ClassTemplate } from './entities/class-template.entity';
 import { ClassType } from '../common/enums/class-type.enum';
@@ -27,6 +28,7 @@ describe('ClassTemplatesService', () => {
 
   const dto = {
     name: 'Reformer Flow',
+    slug: 'reformer-flow',
     classType: ClassType.REFORMER,
     instructorId: 'i1',
     roomId: 'r1',
@@ -55,6 +57,20 @@ describe('ClassTemplatesService', () => {
     const result = await service.update('ct1', { name: 'New' });
     expect(result.name).toBe('New');
     expect(JSON.parse(result.recurrenceRule)).toEqual(dto.recurrenceRule);
+  });
+
+  it('findBySlug returns the matching template', async () => {
+    repoMock.findOne.mockResolvedValueOnce({ id: 'ct1', slug: 'reformer-flow' });
+    const result = await service.findBySlug('reformer-flow');
+    expect(result.slug).toBe('reformer-flow');
+    expect(repoMock.findOne).toHaveBeenCalledWith({
+      where: { slug: 'reformer-flow' },
+    });
+  });
+
+  it('findBySlug throws NotFoundException for an unknown slug', async () => {
+    repoMock.findOne.mockResolvedValueOnce(null);
+    await expect(service.findBySlug('nope')).rejects.toThrow(NotFoundException);
   });
 
   it('deactivate sets active false', async () => {

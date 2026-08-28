@@ -22,6 +22,12 @@ export class ClassTemplatesService {
     return template;
   }
 
+  async findBySlug(slug: string): Promise<ClassTemplate> {
+    const template = await this.repo.findOne({ where: { slug } });
+    if (!template) throw new NotFoundException('Class template not found');
+    return template;
+  }
+
   create(dto: CreateClassTemplateDto): Promise<ClassTemplate> {
     const { recurrenceRule, ...rest } = dto;
     const template = this.repo.create({
