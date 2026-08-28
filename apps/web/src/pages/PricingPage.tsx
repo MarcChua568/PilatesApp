@@ -7,20 +7,20 @@ import { Card, CardContent } from '@/components/ui/card';
 const PLANS = [
   {
     name: 'Intro offer',
-    price: '$49',
+    price: '₱1,800',
     unit: 'for 2 weeks',
     features: ['Unlimited classes for 14 days', 'Reformer + mat', 'New clients only'],
     featured: true,
   },
   {
     name: 'Class pack',
-    price: '$210',
+    price: '₱7,500',
     unit: '10 classes',
     features: ['Book any class', 'Valid 90 days', 'Shareable with a friend'],
   },
   {
     name: 'Membership',
-    price: '$189',
+    price: '₱6,500',
     unit: 'per month',
     features: ['8 classes / month', 'Priority waitlist', 'Guest passes'],
   },
