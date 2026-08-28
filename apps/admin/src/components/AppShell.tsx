@@ -32,7 +32,7 @@ export function AppShell() {
     <div className="flex min-h-screen">
       <aside className="flex w-60 shrink-0 flex-col border-r border-line bg-surface">
         <div className="px-5 py-6">
-          <p className="eyebrow">Pilates Studio</p>
+          <p className="eyebrow">MILE Wellness</p>
           <p className="font-display text-xl font-light tracking-tightpx">
             Studio Admin
           </p>

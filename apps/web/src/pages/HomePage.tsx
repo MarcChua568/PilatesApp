@@ -25,7 +25,7 @@ export function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={transitions.editorial}
           >
-            Reformer &amp; mat Pilates
+            MILE Wellness · Salcedo, Makati
           </motion.p>
           <motion.h1
             className="mt-3 max-w-3xl font-display text-5xl font-light leading-[1.05] tracking-tightpx sm:text-6xl md:text-7xl"
@@ -33,7 +33,7 @@ export function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...transitions.editorial, delay: 0.08 }}
           >
-            Strength, built slowly and on purpose.
+            A little further every day.
           </motion.h1>
           <motion.div
             className="mt-8 flex flex-wrap gap-3"
@@ -42,7 +42,7 @@ export function HomePage() {
             transition={{ ...transitions.editorial, delay: 0.16 }}
           >
             <Button size="lg" asChild>
-              <Link to="/classes">See the schedule</Link>
+              <Link to="/classes">Book a class</Link>
             </Button>
             <Button
               size="lg"
@@ -50,7 +50,7 @@ export function HomePage() {
               className="border-deep-fg/40 text-deep-fg hover:bg-deep-fg/10"
               asChild
             >
-              <Link to="/pricing">Intro offer</Link>
+              <Link to="/pricing">Explore MILE</Link>
             </Button>
           </motion.div>
         </div>
@@ -59,11 +59,11 @@ export function HomePage() {
       {/* Intro statement */}
       <section className="mx-auto max-w-prose px-5 py-24 text-center">
         <Reveal>
-          <p className="eyebrow">The method</p>
+          <p className="eyebrow">What is MILE</p>
           <p className="mt-4 font-display text-2xl font-light leading-relaxed tracking-tightpx sm:text-3xl">
-            Movements are built progressively — the body learns strength and
-            awareness without strain. We keep classes small so every rep is
-            actually seen.
+            A boutique wellness and movement studio built around the idea that
+            wellness should be part of your everyday life — movement, community
+            and mindful experiences in one beautiful space.
           </p>
         </Reveal>
       </section>
@@ -71,8 +71,8 @@ export function HomePage() {
       {/* Two-image band */}
       <section className="mx-auto grid max-w-6xl gap-4 px-5 sm:grid-cols-2">
         {[
-          { src: '/img/reformer.jpg', label: 'Reformer', copy: 'Spring resistance, full range, low impact.' },
-          { src: '/img/mat.jpg', label: 'Mat', copy: 'Classical work, your bodyweight, precise cueing.' },
+          { src: '/img/mat.jpg', label: 'Mat Pilates', copy: 'Strength, control, posture and mindful movement.' },
+          { src: '/img/barre.jpg', label: 'Barre & Movement', copy: 'Ballet-inspired work, dance and specialty sessions.' },
         ].map((b, i) => (
           <Reveal key={b.label} delay={i * 0.08}>
             <div className="group overflow-hidden rounded-lg border border-line">
@@ -140,14 +140,15 @@ export function HomePage() {
         <div className="absolute inset-0 bg-deep/80" />
         <div className="relative mx-auto max-w-3xl px-5 py-24 text-center text-deep-fg">
           <Reveal>
-            <h2 className="font-display text-4xl font-light tracking-tightpx">
-              Your first class is on us to figure out.
+            <p className="eyebrow text-deep-fg/60">New to MILE?</p>
+            <h2 className="mt-3 font-display text-4xl font-light tracking-tightpx">
+              Not sure where to start?
             </h2>
             <p className="mt-3 text-deep-fg/70">
-              New here? Grab the intro offer and try a reformer class.
+              Try the intro offer — two weeks of classes to find your rhythm.
             </p>
             <Button size="lg" className="mt-8" asChild>
-              <Link to="/classes">Book a class</Link>
+              <Link to="/pricing">See the intro offer</Link>
             </Button>
           </Reveal>
         </div>

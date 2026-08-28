@@ -38,7 +38,7 @@ export function SiteHeader({ overHero = false }: { overHero?: boolean }) {
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
         <Link to="/" className="font-display text-xl tracking-tightpx">
-          Pilates<span className="text-primary">.</span>Studio
+          MILE<span className="text-primary">.</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">

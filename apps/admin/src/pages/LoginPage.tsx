@@ -42,7 +42,7 @@ export function LoginPage() {
   return (
     <div className="grid min-h-screen place-items-center px-4">
       <div className="w-full max-w-sm">
-        <p className="eyebrow mb-1">Pilates Studio</p>
+        <p className="eyebrow mb-1">MILE Wellness</p>
         <h1 className="mb-6 text-2xl">Admin sign in</h1>
         <Card>
           <CardContent className="pt-5">

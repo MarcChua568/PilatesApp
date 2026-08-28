@@ -25,7 +25,7 @@ export function WaiverPage() {
               Placeholder waiver text — replace with the studio’s reviewed copy.
             </p>
             <p>
-              I confirm I am physically able to participate in Pilates classes and
+              I confirm I am physically able to participate in movement classes and
               have disclosed any conditions that may affect my participation. I
               understand the risks of physical exercise and participate at my own
               risk.

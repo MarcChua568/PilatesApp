@@ -1,24 +1,24 @@
 import type { Config } from 'tailwindcss';
 
 /**
- * Shared design tokens for the Pilates studio apps — a warm editorial system:
- * oat and cream grounds, terracotta as the single working accent, espresso
- * "deep" bands for imagery/footers, moss for positive states, hairline borders,
- * no shadows. Display type is Fraunces (editorial serif); UI/body is DM Sans.
+ * MILE Wellness design tokens — warm, editorial, premium. Cream/beige grounds,
+ * warm-brown "deep" bands for imagery/footers, deep burgundy as the single
+ * working accent, linen/camel for quiet positives, hairline borders, no shadows.
+ * Display type is Fraunces (editorial serif); UI/body is DM Sans.
  */
 const preset: Partial<Config> = {
   theme: {
     extend: {
       colors: {
-        bg: '#f4ece0',
-        surface: '#fbf6ee',
+        bg: '#f2ebdf',
+        surface: '#faf4ea',
         ink: '#2a211b',
         muted: '#7c7367',
-        primary: { DEFAULT: '#b5623c', fg: '#fbf6ee' },
-        deep: { DEFAULT: '#3a2b22', fg: '#f0e6d8' },
-        accent: '#6f7a5c',
-        line: '#e4d8c6',
-        danger: '#a24b39',
+        primary: { DEFAULT: '#6d2f3a', fg: '#f7efe3' },
+        deep: { DEFAULT: '#372a20', fg: '#efe4d4' },
+        accent: '#8a7857',
+        line: '#e4d8c5',
+        danger: '#9c4b3b',
       },
       fontFamily: {
         sans: ['"DM Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
