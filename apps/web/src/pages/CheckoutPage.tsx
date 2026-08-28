@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Check, Lock } from 'lucide-react';
 import { useAuth } from '@/auth/useAuth';
-import { getPlan, peso } from '@/lib/plans';
+import { hooks } from '@/lib/api';
+import { peso } from '@/lib/format';
+import { packageUnit } from '@/lib/packages';
+import { Seo } from '@/components/site/Seo';
 import { Reveal } from '@/components/site/Reveal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,21 +14,23 @@ import { Card, CardContent } from '@/components/ui/card';
 
 export function CheckoutPage() {
   const { slug } = useParams();
-  const plan = getPlan(slug);
+  const { data: plan, isLoading, isError } = hooks.usePackage(slug);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  if (!plan) return <Navigate to="/pricing" replace />;
+  if (isLoading) {
+    return <div className="mx-auto max-w-4xl px-5 py-20 text-sm text-muted">Loading…</div>;
+  }
+  if (isError || !plan) return <Navigate to="/pricing" replace />;
 
-  const vat = Math.round(plan.priceValue * 0.12);
-  const subtotal = plan.priceValue - vat;
+  const vat = Math.round(plan.pricePhp * 0.12);
+  const subtotal = plan.pricePhp - vat;
 
   function pay(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
-    // no payment provider wired up — simulate then land on a confirmation state
     setTimeout(() => {
       setBusy(false);
       setDone(true);
@@ -35,6 +40,7 @@ export function CheckoutPage() {
   if (done) {
     return (
       <div className="mx-auto max-w-md px-5 py-20 text-center">
+        <Seo title="Checkout" path={`/checkout/${plan.slug}`} noindex />
         <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-accent/15 text-accent">
           <Check className="h-6 w-6" />
         </div>
@@ -50,7 +56,7 @@ export function CheckoutPage() {
             <Link to="/pricing">Back to pricing</Link>
           </Button>
           <Button asChild>
-            <Link to="/classes">Browse classes</Link>
+            <Link to="/schedule">Browse classes</Link>
           </Button>
         </div>
       </div>
@@ -59,6 +65,7 @@ export function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-14">
+      <Seo title={`Checkout · ${plan.name}`} path={`/checkout/${plan.slug}`} noindex />
       <button
         onClick={() => navigate(-1)}
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted hover:text-ink"
@@ -79,7 +86,6 @@ export function CheckoutPage() {
       </div>
 
       <div className="mt-8 grid gap-8 md:grid-cols-[1.4fr_1fr]">
-        {/* payment form — visual only, nothing is submitted anywhere */}
         <form onSubmit={pay} className="space-y-5">
           <Field label="Email" htmlFor="co-email">
             <Input
@@ -110,7 +116,7 @@ export function CheckoutPage() {
 
           <Button type="submit" size="lg" className="w-full" disabled={busy}>
             <Lock className="h-4 w-4" />
-            {busy ? 'Processing…' : `Pay ${peso(plan.priceValue)}`}
+            {busy ? 'Processing…' : `Pay ${peso(plan.pricePhp)}`}
           </Button>
           <p className="text-center text-xs text-muted">
             By continuing you agree to the studio's terms and cancellation
@@ -118,7 +124,6 @@ export function CheckoutPage() {
           </p>
         </form>
 
-        {/* order summary */}
         <div>
           <Card>
             <CardContent className="pt-5">
@@ -126,9 +131,9 @@ export function CheckoutPage() {
               <div className="flex items-baseline justify-between">
                 <div>
                   <p className="font-medium">{plan.name}</p>
-                  <p className="text-xs text-muted">{plan.unit}</p>
+                  <p className="text-xs text-muted">{packageUnit(plan)}</p>
                 </div>
-                <p className="font-display text-lg">{plan.price}</p>
+                <p className="font-display text-lg">{peso(plan.pricePhp)}</p>
               </div>
               <p className="mt-2 text-sm text-muted">{plan.blurb}</p>
 
@@ -137,7 +142,7 @@ export function CheckoutPage() {
                 <Row label="VAT (12%)" value={peso(vat)} />
                 <div className="flex justify-between border-t border-line pt-2 font-medium">
                   <span>Total</span>
-                  <span>{peso(plan.priceValue)}</span>
+                  <span>{peso(plan.pricePhp)}</span>
                 </div>
               </div>
             </CardContent>

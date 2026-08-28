@@ -3,10 +3,20 @@ import { SiteLayout } from '@/components/site/SiteLayout';
 import { BookLayout } from '@/components/site/BookLayout';
 import { RequireWaiver } from '@/auth/RequireAuth';
 import { HomePage } from '@/pages/HomePage';
+import { ClassTypesPage } from '@/pages/ClassTypesPage';
+import { ClassInfoPage } from '@/pages/ClassInfoPage';
 import { ClassesPage } from '@/pages/ClassesPage';
 import { InstructorsPage } from '@/pages/InstructorsPage';
 import { PricingPage } from '@/pages/PricingPage';
 import { CheckoutPage } from '@/pages/CheckoutPage';
+import { AboutPage } from '@/pages/AboutPage';
+import { TheSpacePage } from '@/pages/TheSpacePage';
+import { LocationPage } from '@/pages/LocationPage';
+import { ContactPage } from '@/pages/ContactPage';
+import { ShopPage } from '@/pages/ShopPage';
+import { EventsPage } from '@/pages/EventsPage';
+import { EventDetailPage } from '@/pages/EventDetailPage';
+import { PromoLandingPage } from '@/pages/PromoLandingPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { WaiverPage } from '@/pages/book/WaiverPage';
@@ -15,6 +25,7 @@ import { BookingConfirmationPage } from '@/pages/book/BookingConfirmationPage';
 import { MyBookingsPage } from '@/pages/book/MyBookingsPage';
 import { AccountPage } from '@/pages/book/AccountPage';
 import { AnnouncementsPage } from '@/pages/book/AnnouncementsPage';
+import { NotificationsPage } from '@/pages/book/NotificationsPage';
 
 export const router = createBrowserRouter([
   {
@@ -24,10 +35,20 @@ export const router = createBrowserRouter([
   {
     element: <SiteLayout />,
     children: [
-      { path: 'classes', element: <ClassesPage /> },
+      { path: 'classes', element: <ClassTypesPage /> },
+      { path: 'classes/:slug', element: <ClassInfoPage /> },
+      { path: 'schedule', element: <ClassesPage /> },
       { path: 'instructors', element: <InstructorsPage /> },
       { path: 'pricing', element: <PricingPage /> },
       { path: 'checkout/:slug', element: <CheckoutPage /> },
+      { path: 'about', element: <AboutPage /> },
+      { path: 'the-space', element: <TheSpacePage /> },
+      { path: 'location', element: <LocationPage /> },
+      { path: 'contact', element: <ContactPage /> },
+      { path: 'shop', element: <ShopPage /> },
+      { path: 'events', element: <EventsPage /> },
+      { path: 'events/:slug', element: <EventDetailPage /> },
+      { path: 'promo/:slug', element: <PromoLandingPage /> },
       { path: 'login', element: <LoginPage /> },
       { path: 'register', element: <RegisterPage /> },
       {
@@ -60,6 +81,7 @@ export const router = createBrowserRouter([
               </RequireWaiver>
             ),
           },
+          { path: 'notifications', element: <NotificationsPage /> },
           { path: 'news', element: <AnnouncementsPage /> },
           { path: 'account', element: <AccountPage /> },
         ],

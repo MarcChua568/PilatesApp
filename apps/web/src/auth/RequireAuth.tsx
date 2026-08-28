@@ -22,8 +22,9 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
 export function RequireWaiver({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const location = useLocation();
   if (user && !user.healthWaiverSignedAt) {
-    return <Navigate to="/book/waiver" replace />;
+    return <Navigate to="/book/waiver" state={{ from: location }} replace />;
   }
   return <>{children}</>;
 }

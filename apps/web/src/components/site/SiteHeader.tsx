@@ -7,8 +7,18 @@ import { Button } from '@/components/ui/button';
 
 const LINKS = [
   { to: '/classes', label: 'Classes' },
+  { to: '/schedule', label: 'Schedule' },
   { to: '/instructors', label: 'Instructors' },
+  { to: '/events', label: 'Events' },
   { to: '/pricing', label: 'Pricing' },
+  { to: '/about', label: 'About' },
+];
+
+const MORE = [
+  { to: '/the-space', label: 'The Space' },
+  { to: '/location', label: 'Location' },
+  { to: '/contact', label: 'Contact' },
+  { to: '/shop', label: 'Shop' },
 ];
 
 export function SiteHeader({ overHero = false }: { overHero?: boolean }) {
@@ -30,7 +40,7 @@ export function SiteHeader({ overHero = false }: { overHero?: boolean }) {
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-40 transition-colors duration-300 ease-editorial',
+        'sticky top-0 z-40 transition-colors duration-300 ease-editorial',
         solid
           ? 'border-b border-line bg-bg/92 backdrop-blur'
           : 'bg-gradient-to-b from-deep/50 to-transparent text-deep-fg [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]',
@@ -41,7 +51,7 @@ export function SiteHeader({ overHero = false }: { overHero?: boolean }) {
           MILE<span className="text-primary">.</span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-7 lg:flex">
           {LINKS.map((l) => (
             <NavLink
               key={l.to}
@@ -71,19 +81,19 @@ export function SiteHeader({ overHero = false }: { overHero?: boolean }) {
               </Button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <Link to="/login" className="text-sm hover:text-primary">
                 Sign in
               </Link>
               <Button size="sm" asChild>
-                <Link to="/classes">Book a class</Link>
+                <Link to="/schedule">Book a class</Link>
               </Button>
             </div>
           )}
         </nav>
 
         <button
-          className="md:hidden"
+          className="lg:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label="Menu"
         >
@@ -92,19 +102,23 @@ export function SiteHeader({ overHero = false }: { overHero?: boolean }) {
       </div>
 
       {open && (
-        <div className="border-t border-line bg-bg px-5 py-4 md:hidden">
+        <div className="border-t border-line bg-bg px-5 py-4 lg:hidden">
           <div className="flex flex-col gap-3">
-            {LINKS.map((l) => (
+            {[...LINKS, ...MORE].map((l) => (
               <Link key={l.to} to={l.to} className="text-sm">
                 {l.label}
               </Link>
             ))}
+            <div className="my-1 h-px bg-line" />
             {user ? (
               <>
                 <Link to="/book/bookings" className="text-sm">
                   My bookings
                 </Link>
-                <button onClick={logout} className="text-left text-sm text-muted">
+                <button
+                  onClick={logout}
+                  className="text-left text-sm text-muted"
+                >
                   Sign out
                 </button>
               </>
@@ -114,7 +128,7 @@ export function SiteHeader({ overHero = false }: { overHero?: boolean }) {
                   Sign in
                 </Link>
                 <Button asChild className="mt-1 w-full">
-                  <Link to="/classes">Book a class</Link>
+                  <Link to="/schedule">Book a class</Link>
                 </Button>
               </>
             )}

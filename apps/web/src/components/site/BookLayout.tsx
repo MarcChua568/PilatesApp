@@ -4,8 +4,9 @@ import { cn, pageVariants } from '@pilates/ui';
 import { RequireAuth } from '@/auth/RequireAuth';
 
 const TABS = [
-  { to: '/classes', label: 'Schedule', end: true },
+  { to: '/schedule', label: 'Schedule', end: true },
   { to: '/book/bookings', label: 'My bookings' },
+  { to: '/book/notifications', label: 'Notifications' },
   { to: '/book/news', label: 'News' },
   { to: '/book/account', label: 'Account' },
 ];
