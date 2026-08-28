@@ -32,29 +32,29 @@ async function tryJson(path) {
   }
 }
 
-const [templates, events, instructors, promos] = await Promise.all([
+const [templates, events, promos] = await Promise.all([
   tryJson('/class-templates'),
   tryJson('/events'),
-  tryJson('/instructors'),
   tryJson('/promotions'),
 ]);
 
-if (!templates.length && !events.length && !instructors.length) {
+if (!templates.length && !events.length) {
   console.log('gen-sitemap: API unreachable, keeping the static sitemap.');
   process.exit(0);
 }
 
+// Only slug-addressed URLs — stable across re-seeds. Instructor pages are
+// id-addressed and low SEO value, so they're left out of the sitemap.
 const urls = [
   ...STATIC.map(([loc, p]) => ({ loc, priority: p })),
   ...templates
     .filter((t) => t.active)
     .map((t) => ({ loc: `/classes/${t.slug}`, priority: '0.6' })),
   ...events.map((e) => ({ loc: `/events/${e.slug}`, priority: '0.6' })),
-  ...instructors.map((i) => ({ loc: `/instructors/${i.id}`, priority: '0.5' })),
   ...promos
     .filter((p) => p.landingSlug)
     .map((p) => ({ loc: `/promo/${p.landingSlug}`, priority: '0.4' })),
-];
+].sort((a, b) => a.loc.localeCompare(b.loc));
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
