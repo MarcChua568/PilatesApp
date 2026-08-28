@@ -150,3 +150,49 @@ the upload flow in the admin targets the right place.
   "A little further every day.", homepage voice, page titles + meta).
 - Homepage classes framed as **Mat Pilates** / **Barre & Movement**; "New to
   MILE?" CTA points at the intro offer.
+
+---
+
+## 5 · Build — MILE brand site (2026-08-28)
+
+Decisions applied: keep the custom engine (#1); extend the admin as the CMS
+(#4); on-page SEO only, no Next.js migration (#2, deferred); **no** payment
+provider (#3, deferred); **no** external media host (#5, deferred); no email/SMS
+provider — an in-app notification log stands in for §21.
+
+Plan: `docs/superpowers/plans/2026-08-28-mile-brand-site.md`.
+
+**API (6 new modules, one migration, all seed-populated)**
+- `events` + capacity-safe RSVP (pessimistic lock on the event row) · `event_rsvps`
+- `promotions` with an active-window query driving the site announcement bar
+- `packages` — the staff-editable `/pricing` catalogue (checkout still a preview)
+- `site_content` — keyed JSON blocks for every marketing page
+- `waivers` — stored liability + health intake, stamps `users.health_waiver_signed_at`
+- `notifications` — in-app log; `CapacityService` emits on book / cancel /
+  no-show / waitlist promotion + offer
+- `class_templates` gain `slug`, `typeLabel`, `heroImageUrl`, `longDescription`,
+  `whatToBring`, `whoItsFor` + a public `GET /class-templates/by-slug/:slug`
+
+**Public site (`apps/web`)**
+- New pages: `/about`, `/the-space`, `/location` (OpenStreetMap embed, no key),
+  `/contact` (validates + confirms, doesn't send), `/shop` (stub), `/classes`
+  (overview) + `/classes/:slug` (per-class detail), `/events` + `/events/:slug`
+  (RSVP), `/promo/:slug`, `/book/notifications`
+- Shell: dismissible announcement bar, sticky mobile "Book a class", fuller nav
+  + footer with socials
+- SEO: `react-helmet-async` per-route title/meta/OG + JSON-LD (LocalBusiness,
+  Event, Course, ItemList), `sitemap.xml`, `robots.txt`
+- Pricing + checkout now read the `packages` API (`lib/plans.ts` deleted); real
+  waiver + health-intake form replaces the boolean gate; homepage gains an
+  events strip, promo cards, testimonials, gallery and a location teaser
+
+**Admin (`apps/admin`)**
+- New sections: Events, Promotions, Pricing/packages, Site Content (grouped
+  editor over every block), Waivers viewer
+- Class-template form gains all the public-page fields
+
+**Status now:** §9 events ✅ · §10 promotions/announcement bar ✅ · §11 About ✅ ·
+§12 The Space ✅ · §14 Café ✅ (block) · §15 Shop 🟡 (stub) · §16 gallery ✅
+(curated) · §17 testimonials ✅ · §18 Location ✅ · §19 Contact ✅ (no send) ·
+§22 waiver ✅ · §27 CMS ✅ · §28 SEO 🟡 (on-page only). Still open by decision:
+§7 payments, §8 real Buy Now, §21 email/SMS, §29 analytics, §28 SSR, media host.

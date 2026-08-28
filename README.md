@@ -1,17 +1,23 @@
-# Pilates Studio Reservation Platform
+# MILE Wellness — studio site & reservation platform
 
-A class-reservation system for a Pilates studio: concurrency-safe booking with
-assigned reformer spots, waitlisting, no-show tracking, and reporting.
+The website and booking system for **MILE**, a boutique Pilates, barre and
+movement studio in Salcedo Village, Makati. An editorial marketing site with a
+login-gated booking flow (concurrency-safe capacity, assigned reformer spots,
+waitlist auto-promotion, no-show tracking), events + RSVPs, staff-editable
+pricing and site content, and a connected staff/admin portal.
+
+Payments, transactional email/SMS, media hosting and server-side rendering are
+deliberately not wired yet — see `docs/MILE-review.md`.
 
 ## Monorepo layout (npm workspaces)
 
 | Path | What | Port |
 |---|---|---|
-| [`apps/api`](apps/api) | NestJS + PostgreSQL REST API | 3000 |
-| [`apps/web`](apps/web) | **Public site + member booking** — marketing, schedule, instructors, login-gated booking | 5175 |
-| [`apps/admin`](apps/admin) | Staff / admin portal | 5173 |
+| [`apps/api`](apps/api) | NestJS + PostgreSQL REST API — booking, events, promotions, packages, site content, waivers, notifications | 3000 |
+| [`apps/web`](apps/web) | **Public site + member booking** — marketing pages (About, The Space, Location, Contact), Classes + per-class pages, Events + RSVP, Pricing, login-gated booking | 5175 |
+| [`apps/admin`](apps/admin) | Staff / admin portal — schedule, classes, instructors, rooms, events, promotions, pricing, site content, waivers, reports | 5173 |
 | `apps/member` | Earlier standalone member app — **superseded by `apps/web`**, kept for reference | 5174 |
-| [`packages/ui`](packages/ui) | Warm-editorial design tokens (terracotta/cream, Fraunces + DM Sans) + motion presets | — |
+| [`packages/ui`](packages/ui) | MILE design tokens (burgundy/cream/brown, Fraunces + DM Sans) + motion presets | — |
 | [`packages/api-client`](packages/api-client) | Typed API client + JWT refresh + TanStack Query hooks | — |
 | [`docs/`](docs) | Specs, plans, UX research | — |
 
@@ -47,7 +53,9 @@ npm --workspace apps/admin run dev   # http://localhost:5173
 Seed data: 6 instructors (with photos + bios), 7 class types across 2 studios
 (reformer room has a 10-spot map), 3 weeks of history + 3 weeks ahead (~74
 classes, ~230 bookings), varied fill levels, full classes with waitlists, past
-attendance for the reports.
+attendance for the reports. Plus 6 events (past + upcoming) with RSVPs, 3
+promotions (one in the top bar), 5 pricing packages, 11 site-content blocks of
+real MILE copy, waiver submissions, and a notification log for `member1`.
 
 ## Docs
 

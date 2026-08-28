@@ -790,15 +790,15 @@ async function seed() {
         { src: photo('photo-1544367567-0f2fcb009e0b', 800, 800), alt: 'Mat work, morning light' },
         { src: photo('photo-1518310383802-640c2de311b2', 800, 800), alt: 'Core work on the mat' },
         { src: photo('photo-1552196563-55cd4e45efb3', 800, 800), alt: 'The MILE café counter' },
-        { src: photo('photo-1554344728-77cf90d9ed26', 800, 800), alt: 'Athletic reformer, jump board' },
-        { src: photo('photo-1600618528240-fb9fc964b853', 800, 800), alt: 'Restorative, supported positions' },
+        { src: photo('photo-1540497077202-7c8a3999166f', 800, 800), alt: 'Studio A, reformers at rest' },
+        { src: photo('photo-1517705008128-361805f42e86', 800, 800), alt: 'The lounge' },
       ],
     },
     'about.hero': {
       eyebrow: 'About MILE',
       heading: 'A little further every day.',
       body: 'MILE is a boutique movement and wellness studio in Salcedo Village, Makati. Reformer, mat and barre, taught in small groups by instructors who actually watch you — wrapped in a space that feels less like a gym and more like somewhere you want to be.',
-      imageUrl: hero('photo-1517960413843-0aee8e2b3285'),
+      imageUrl: hero('photo-1554284126-aa88f22d8b74'),
     },
     'about.philosophy': {
       heading: 'Move. Inspire. Live. Evolve.',
