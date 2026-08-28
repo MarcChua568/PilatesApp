@@ -16,16 +16,39 @@ import { IntensityLevel } from '../common/enums/intensity-level.enum';
 import { ClassInstanceStatus } from '../common/enums/class-instance-status.enum';
 import { BookingStatus } from '../common/enums/booking-status.enum';
 
-/** Walk a weekly recurrence into concrete class-instance rows (mirrors GenerationService). */
-function expand(
-  template: ClassTemplate,
-  rule: { daysOfWeek: number[]; startTime: string; startDate: string; endDate: string },
-): Partial<ClassInstance>[] {
+const DAY = 86_400_000;
+
+/** Deterministic PRNG so re-seeding gives the same demo state. */
+function rng(seed: number) {
+  let s = seed;
+  return () => {
+    s = (s * 1664525 + 1013904223) % 4294967296;
+    return s / 4294967296;
+  };
+}
+const rand = rng(42);
+const pick = <T>(arr: T[]) => arr[Math.floor(rand() * arr.length)];
+
+const photo = (id: string, w = 500, h = 600) =>
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&h=${h}&q=70`;
+
+interface Rule {
+  daysOfWeek: number[];
+  startTime: string;
+  startDate: string;
+  endDate: string;
+}
+
+function expand(template: ClassTemplate, rule: Rule): Partial<ClassInstance>[] {
   const [h, m] = rule.startTime.split(':').map(Number);
   const start = new Date(rule.startDate + 'T00:00:00Z');
   const end = new Date(rule.endDate + 'T00:00:00Z');
   const out: Partial<ClassInstance>[] = [];
-  for (const d = new Date(start); d.getTime() <= end.getTime(); d.setUTCDate(d.getUTCDate() + 1)) {
+  for (
+    const d = new Date(start);
+    d.getTime() <= end.getTime();
+    d.setUTCDate(d.getUTCDate() + 1)
+  ) {
     if (!rule.daysOfWeek.includes(d.getUTCDay())) continue;
     const startTime = new Date(d);
     startTime.setUTCHours(h, m, 0, 0);
@@ -51,164 +74,336 @@ async function seed() {
   await AppDataSource.initialize();
   const em = AppDataSource.manager;
 
-  // wipe (dev convenience) — order respects FKs
   await em.query(
     'TRUNCATE bookings, class_instances, class_templates, room_spots, rooms, instructors, announcements, users RESTART IDENTITY CASCADE',
   );
 
   const passwordHash = await bcrypt.hash('password123', 10);
-  const waiver = new Date();
+  const waiver = new Date(Date.now() - 30 * DAY);
 
-  await em.getRepository(StudioSettings).save({ id: 1, cancellationWindowHours: 2 });
+  await em.getRepository(StudioSettings).save({
+    id: 1,
+    cancellationWindowHours: 12,
+    waitlistAutoPromoteCutoffHours: 2,
+    waitlistOfferTtlMinutes: 30,
+    maxSeatsPerBooking: 3,
+  });
 
+  // ---- people ----
   const admin = await em.getRepository(User).save({
     email: 'admin@studio.test',
     passwordHash,
-    fullName: 'Studio Admin',
+    fullName: 'Nadia Rowe',
     role: Role.ADMIN,
     healthWaiverSignedAt: waiver,
   });
   await em.getRepository(User).save([
-    { email: 'staff1@studio.test', passwordHash, fullName: 'Staff One', role: Role.STAFF, healthWaiverSignedAt: waiver },
-    { email: 'staff2@studio.test', passwordHash, fullName: 'Staff Two', role: Role.STAFF, healthWaiverSignedAt: waiver },
+    {
+      email: 'staff1@studio.test',
+      passwordHash,
+      fullName: 'Theo Marsh',
+      role: Role.STAFF,
+      healthWaiverSignedAt: waiver,
+    },
+    {
+      email: 'staff2@studio.test',
+      passwordHash,
+      fullName: 'Priya Anand',
+      role: Role.STAFF,
+      healthWaiverSignedAt: waiver,
+    },
   ]);
+
+  const firstNames = [
+    'Ava', 'Liam', 'Mia', 'Noah', 'Zoe', 'Ethan', 'Isla', 'Leo', 'Nora', 'Kai',
+    'Ruby', 'Owen', 'Elena', 'Jack', 'Maya', 'Finn', 'Chloe', 'Hugo', 'Sadie',
+    'Rex', 'Iris', 'Cole', 'Anya', 'Miles',
+  ];
+  const lastNames = [
+    'Bennett', 'Ford', 'Nguyen', 'Kelly', 'Ramos', 'Cho', 'Walsh', 'Diaz',
+    'Pope', 'Rao', 'Lund', 'Okafor', 'Bianchi', 'Sato', 'Frost', 'Mercer',
+  ];
   const members = await em.getRepository(User).save(
-    Array.from({ length: 6 }, (_, i) => ({
+    firstNames.map((fn, i) => ({
       email: `member${i + 1}@studio.test`,
       passwordHash,
-      fullName: `Member ${i + 1}`,
+      fullName: `${fn} ${lastNames[i % lastNames.length]}`,
       role: Role.MEMBER,
-      // member6 has NOT signed the waiver, to exercise that gate
-      healthWaiverSignedAt: i === 5 ? null : waiver,
+      // the last two have not signed the waiver
+      healthWaiverSignedAt: i >= firstNames.length - 2 ? null : waiver,
     })),
   );
 
+  // ---- instructors ----
   const instructors = await em.getRepository(Instructor).save([
-    { name: 'Jane Doe', bio: 'Certified Reformer instructor, 10 years experience.' },
-    { name: 'Sam Lee', bio: 'Mat and Barre specialist.' },
-    { name: 'Ana Costa', bio: 'Advanced Reformer and rehab-focused Pilates.' },
+    {
+      name: 'Jane Okafor',
+      bio: 'Founder. Classical Pilates lineage, 12 years on the reformer. Jane keeps her cueing quiet and specific — you leave knowing exactly which muscles did the work.',
+      photoUrl: photo('photo-1544005313-94ddf0286df2'),
+    },
+    {
+      name: 'Sam Lindqvist',
+      bio: 'Mat and barre specialist with a dance background. Expect musical, flowing sequences and a strong core focus.',
+      photoUrl: photo('photo-1500648767791-00dcc994a43e'),
+    },
+    {
+      name: 'Ana Costa',
+      bio: 'Rehab-focused. Ana works with post-injury and pre/post-natal clients and teaches the beginner reformer track.',
+      photoUrl: photo('photo-1438761681033-6461ffad8d80'),
+    },
+    {
+      name: 'Marcus Bell',
+      bio: 'Athletic reformer and jump-board. Former sprinter — his intermediate classes move.',
+      photoUrl: photo('photo-1507003211169-0a1dd7228f2d'),
+    },
+    {
+      name: 'Hana Sato',
+      bio: 'Slow, precise, breath-led. Hana teaches the gentle mat class and the Sunday restorative.',
+      photoUrl: photo('photo-1494790108377-be9c29b29330'),
+    },
+    {
+      name: 'Diego Ramos',
+      bio: 'Barre and conditioning. High energy, big playlists, always a burnout finisher.',
+      photoUrl: photo('photo-1552374196-c4e7ffc6e126'),
+    },
   ]);
 
+  // ---- rooms + spot map ----
   const [reformerRoom, matRoom] = await em.getRepository(Room).save([
-    { name: 'Room A — Reformers', notes: '8 reformer beds', hasAssignedSpots: true },
-    { name: 'Room B — Open Mat', notes: 'Open mat space, no assigned spots', hasAssignedSpots: false },
+    {
+      name: 'Studio A — Reformers',
+      notes: '10 reformer beds, two rows',
+      hasAssignedSpots: true,
+    },
+    {
+      name: 'Studio B — Open Floor',
+      notes: 'Mat & barre, no assigned spots',
+      hasAssignedSpots: false,
+    },
   ]);
-
-  await em.getRepository(RoomSpot).save(
-    Array.from({ length: 8 }, (_, i) => ({
+  const spots = await em.getRepository(RoomSpot).save(
+    Array.from({ length: 10 }, (_, i) => ({
       roomId: reformerRoom.id,
       label: `${i + 1}`,
-      positionGroup: i < 4 ? 'left' : 'right',
+      positionGroup: i < 5 ? 'front row' : 'back row',
       sortOrder: i + 1,
     })),
   );
 
-  const today = new Date();
-  const startDate = today.toISOString().slice(0, 10);
-  const endDate = new Date(today.getTime() + 14 * 86_400_000).toISOString().slice(0, 10);
+  // ---- templates (3 weeks back → 3 weeks forward) ----
+  const startDate = new Date(Date.now() - 21 * DAY).toISOString().slice(0, 10);
+  const endDate = new Date(Date.now() + 21 * DAY).toISOString().slice(0, 10);
+  const R = (daysOfWeek: number[], startTime: string): string =>
+    JSON.stringify({ daysOfWeek, startTime, startDate, endDate });
 
   const templates = await em.getRepository(ClassTemplate).save([
     {
       name: 'Reformer Flow',
       classType: ClassType.REFORMER,
-      description: 'Full-body reformer flow.',
+      description: 'Full-body reformer flow — springs, strength, control.',
       instructorId: instructors[0].id,
       roomId: reformerRoom.id,
       durationMinutes: 50,
       intensityLevel: IntensityLevel.INTERMEDIATE,
-      capacity: 8,
-      recurrenceRule: JSON.stringify({ daysOfWeek: [1, 3], startTime: '18:00', startDate, endDate }),
+      capacity: 10,
+      recurrenceRule: R([1, 3, 5], '18:00'),
       active: true,
     },
     {
       name: 'Beginner Reformer',
       classType: ClassType.REFORMER,
-      description: 'Intro to the reformer.',
+      description: 'Learn the machine. Every position broken down.',
       instructorId: instructors[2].id,
       roomId: reformerRoom.id,
       durationMinutes: 45,
       intensityLevel: IntensityLevel.BEGINNER,
-      capacity: 8,
-      recurrenceRule: JSON.stringify({ daysOfWeek: [6], startTime: '10:00', startDate, endDate }),
+      capacity: 10,
+      recurrenceRule: R([2, 6], '10:00'),
+      active: true,
+    },
+    {
+      name: 'Athletic Reformer',
+      classType: ClassType.REFORMER,
+      description: 'Jump-board, tempo work, higher spring loads.',
+      instructorId: instructors[3].id,
+      roomId: reformerRoom.id,
+      durationMinutes: 45,
+      intensityLevel: IntensityLevel.ADVANCED,
+      capacity: 10,
+      recurrenceRule: R([4], '07:00'),
       active: true,
     },
     {
       name: 'Mat Pilates',
       classType: ClassType.MAT,
-      description: 'Classic mat work.',
+      description: 'Classical mat work, bodyweight, precise cueing.',
       instructorId: instructors[1].id,
       roomId: matRoom.id,
       durationMinutes: 45,
+      intensityLevel: IntensityLevel.INTERMEDIATE,
+      capacity: 16,
+      recurrenceRule: R([1, 3], '07:00'),
+      active: true,
+    },
+    {
+      name: 'Gentle Mat',
+      classType: ClassType.MAT,
+      description: 'Breath-led, low intensity. Good for recovery days.',
+      instructorId: instructors[4].id,
+      roomId: matRoom.id,
+      durationMinutes: 45,
       intensityLevel: IntensityLevel.BEGINNER,
-      capacity: 12,
-      recurrenceRule: JSON.stringify({ daysOfWeek: [2, 4], startTime: '07:00', startDate, endDate }),
+      capacity: 16,
+      recurrenceRule: R([2, 4], '12:00'),
       active: true,
     },
     {
       name: 'Barre Burn',
       classType: ClassType.BARRE,
-      description: 'High-energy barre.',
-      instructorId: instructors[1].id,
+      description: 'High-energy barre with a conditioning finisher.',
+      instructorId: instructors[5].id,
       roomId: matRoom.id,
       durationMinutes: 50,
-      intensityLevel: IntensityLevel.ADVANCED,
-      capacity: 10,
-      recurrenceRule: JSON.stringify({ daysOfWeek: [5], startTime: '17:30', startDate, endDate }),
+      intensityLevel: IntensityLevel.INTERMEDIATE,
+      capacity: 14,
+      recurrenceRule: R([5], '17:30'),
+      active: true,
+    },
+    {
+      name: 'Sunday Restorative',
+      classType: ClassType.OTHER,
+      description: 'Slow, supported, all props. Reset for the week.',
+      instructorId: instructors[4].id,
+      roomId: matRoom.id,
+      durationMinutes: 60,
+      intensityLevel: IntensityLevel.BEGINNER,
+      capacity: 12,
+      recurrenceRule: R([0], '16:00'),
       active: true,
     },
   ]);
 
   let instances: ClassInstance[] = [];
   for (const t of templates) {
-    const rows = expand(t, JSON.parse(t.recurrenceRule));
-    instances = instances.concat(await em.getRepository(ClassInstance).save(rows));
+    instances = instances.concat(
+      await em.getRepository(ClassInstance).save(expand(t, JSON.parse(t.recurrenceRule))),
+    );
   }
 
-  // --- sample bookings ---
-  const spots = await em.getRepository(RoomSpot).find({ where: { roomId: reformerRoom.id }, order: { sortOrder: 'ASC' } });
+  // ---- bookings ----
+  const now = Date.now();
+  const bookings: Partial<Booking>[] = [];
+  const spotIds = spots.map((s) => s.id);
 
-  // Fill the next Mat Pilates class to capacity, then add a waitlister.
-  const matClass = instances
-    .filter(
-      (i) =>
-        i.name === 'Mat Pilates' &&
-        i.startTime.getTime() > Date.now() + 86_400_000,
-    )
+  for (const ci of instances) {
+    const isPast = ci.startTime.getTime() < now;
+    const usesSpots = ci.roomId === reformerRoom.id;
+    // fill level: past classes mostly full, future classes varied
+    const target = isPast
+      ? Math.round(ci.capacity * (0.7 + rand() * 0.3))
+      : Math.round(ci.capacity * (0.2 + rand() * 0.9));
+    const fill = Math.min(ci.capacity, target);
+
+    const shuffled = [...members]
+      .filter((m) => m.healthWaiverSignedAt)
+      .sort(() => rand() - 0.5);
+    let seated = 0;
+    const usedSpots = [...spotIds].sort(() => rand() - 0.5);
+
+    for (const member of shuffled) {
+      if (seated >= fill && !isPast) {
+        // a few future waitlisters on the fuller classes
+        if (seated >= ci.capacity && rand() < 0.5 && seated - ci.capacity < 3) {
+          bookings.push({
+            memberId: member.id,
+            bookedById: member.id,
+            classInstanceId: ci.id,
+            status: BookingStatus.WAITLISTED,
+            waitlistPosition: seated - ci.capacity + 1,
+            bookedAt: new Date(now - rand() * 5 * DAY),
+          });
+          seated++;
+        }
+        continue;
+      }
+      if (seated >= fill) break;
+
+      let status = BookingStatus.BOOKED;
+      if (isPast) {
+        const r = rand();
+        status = r < 0.82 ? BookingStatus.ATTENDED : r < 0.94 ? BookingStatus.NO_SHOW : BookingStatus.BOOKED;
+      }
+      bookings.push({
+        memberId: member.id,
+        bookedById: member.id,
+        classInstanceId: ci.id,
+        spotId: usesSpots ? usedSpots[seated] ?? null : null,
+        status,
+        checkedInAt:
+          status === BookingStatus.ATTENDED
+            ? new Date(ci.startTime.getTime())
+            : null,
+        bookedAt: new Date(ci.startTime.getTime() - (2 + rand() * 6) * DAY),
+      });
+      seated++;
+    }
+
+    ci.bookedCount = Math.min(seated, ci.capacity);
+    if (!isPast) await em.getRepository(ClassInstance).save(ci);
+  }
+  await em.getRepository(Booking).save(bookings);
+
+  // A guaranteed full class + waitlist offer for demos: next Reformer Flow.
+  const showcase = instances
+    .filter((i) => i.name === 'Reformer Flow' && i.startTime.getTime() > now + DAY)
     .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())[0];
-  if (matClass) {
-    matClass.capacity = 2;
-    await em.getRepository(ClassInstance).save(matClass);
-    await em.getRepository(Booking).save([
-      { memberId: members[0].id, bookedById: members[0].id, classInstanceId: matClass.id, status: BookingStatus.BOOKED, bookedAt: new Date() },
-      { memberId: members[1].id, bookedById: members[1].id, classInstanceId: matClass.id, status: BookingStatus.BOOKED, bookedAt: new Date() },
-      { memberId: members[2].id, bookedById: members[2].id, classInstanceId: matClass.id, status: BookingStatus.WAITLISTED, waitlistPosition: 1, bookedAt: new Date() },
-    ]);
-    matClass.bookedCount = 2;
-    await em.getRepository(ClassInstance).save(matClass);
+  if (showcase) {
+    await em
+      .getRepository(Booking)
+      .delete({ classInstanceId: showcase.id });
+    const takers = members.filter((m) => m.healthWaiverSignedAt).slice(0, showcase.capacity);
+    await em.getRepository(Booking).save(
+      takers.map((m, i) => ({
+        memberId: m.id,
+        bookedById: m.id,
+        classInstanceId: showcase.id,
+        spotId: spotIds[i],
+        status: BookingStatus.BOOKED,
+        bookedAt: new Date(now - 3 * DAY),
+      })),
+    );
+    // member1 has an active promotion offer on this class
+    await em.getRepository(Booking).save({
+      memberId: members[0].id,
+      bookedById: members[0].id,
+      classInstanceId: showcase.id,
+      status: BookingStatus.WAITLISTED,
+      waitlistPosition: 1,
+      promotionOfferedAt: new Date(now),
+      promotionOfferExpiresAt: new Date(now + 25 * 60_000),
+      bookedAt: new Date(now - 2 * DAY),
+    });
+    showcase.bookedCount = showcase.capacity;
+    await em.getRepository(ClassInstance).save(showcase);
   }
 
-  // Book two members onto specific reformer spots for the next Reformer Flow.
-  const reformerClass = instances
-    .filter(
-      (i) =>
-        i.name === 'Reformer Flow' &&
-        i.startTime.getTime() > Date.now() + 86_400_000,
-    )
-    .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())[0];
-  if (reformerClass && spots.length >= 2) {
-    await em.getRepository(Booking).save([
-      { memberId: members[3].id, bookedById: members[3].id, classInstanceId: reformerClass.id, spotId: spots[0].id, status: BookingStatus.BOOKED, bookedAt: new Date() },
-      { memberId: members[4].id, bookedById: members[4].id, classInstanceId: reformerClass.id, spotId: spots[1].id, status: BookingStatus.BOOKED, bookedAt: new Date() },
-    ]);
-    reformerClass.bookedCount = 2;
-    await em.getRepository(ClassInstance).save(reformerClass);
-  }
-
-  await em.getRepository(Announcement).save({
-    title: 'Welcome to the new booking system',
-    body: 'You can now reserve your reformer spot online. Classes open for booking 2 weeks out.',
-    createdById: admin.id,
-  });
+  await em.getRepository(Announcement).save([
+    {
+      title: 'Studio A reformers upgraded',
+      body: 'All ten beds in Studio A have new springs and foot bars. If a setting feels different, ask your instructor.',
+      createdById: admin.id,
+    },
+    {
+      title: 'Holiday schedule',
+      body: 'We run a reduced schedule the last week of the month — Sunday Restorative and one morning Mat class only.',
+      createdById: admin.id,
+    },
+    {
+      title: 'New: Athletic Reformer, Thursdays 7am',
+      body: 'Marcus is running a jump-board focused class before work. Advanced — come having done a few intermediate classes first.',
+      createdById: admin.id,
+    },
+  ]);
 
   const counts = {
     users: await em.getRepository(User).count(),
@@ -220,7 +415,10 @@ async function seed() {
     bookings: await em.getRepository(Booking).count(),
   };
   console.log('Seed complete:', counts);
-  console.log('Logins: admin@studio.test / staff1@studio.test / member1@studio.test — password "password123"');
+  console.log(
+    'Logins (password "password123"): admin@studio.test · staff1@studio.test · member1@studio.test',
+  );
+  console.log('member1 has a pending waitlist offer; member23/member24 have no waiver.');
 
   await AppDataSource.destroy();
 }
