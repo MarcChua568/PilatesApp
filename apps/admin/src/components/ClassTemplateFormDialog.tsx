@@ -16,7 +16,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input, Textarea } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
 import {
   Select,
@@ -29,6 +29,9 @@ import { RecurrenceEditor, type RecurrenceValue } from './RecurrenceEditor';
 
 const CLASS_TYPES: ClassType[] = ['reformer', 'mat', 'barre', 'other'];
 const INTENSITIES: IntensityLevel[] = ['beginner', 'intermediate', 'advanced'];
+
+const slugify = (s: string) =>
+  s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 const today = () => new Date().toISOString().slice(0, 10);
 const plusDays = (n: number) =>
@@ -48,6 +51,13 @@ export function ClassTemplateFormDialog({
   const { data: rooms } = hooks.useRooms();
 
   const [name, setName] = useState('');
+  const [slug, setSlug] = useState('');
+  const [slugTouched, setSlugTouched] = useState(false);
+  const [typeLabel, setTypeLabel] = useState('');
+  const [heroImageUrl, setHeroImageUrl] = useState('');
+  const [longDescription, setLongDescription] = useState('');
+  const [whatToBring, setWhatToBring] = useState('');
+  const [whoItsFor, setWhoItsFor] = useState('');
   const [classType, setClassType] = useState<ClassType>('reformer');
   const [instructorId, setInstructorId] = useState('');
   const [roomId, setRoomId] = useState('');
@@ -64,6 +74,13 @@ export function ClassTemplateFormDialog({
   useEffect(() => {
     if (!open) return;
     setName(template?.name ?? '');
+    setSlug(template?.slug ?? '');
+    setSlugTouched(!!template);
+    setTypeLabel(template?.typeLabel ?? '');
+    setHeroImageUrl(template?.heroImageUrl ?? '');
+    setLongDescription(template?.longDescription ?? '');
+    setWhatToBring((template?.whatToBring ?? []).join('\n'));
+    setWhoItsFor(template?.whoItsFor ?? '');
     setClassType(template?.classType ?? 'reformer');
     setInstructorId(template?.instructorId ?? '');
     setRoomId(template?.roomId ?? '');
@@ -86,6 +103,15 @@ export function ClassTemplateFormDialog({
     mutationFn: () => {
       const body = {
         name,
+        slug: slug || slugify(name),
+        typeLabel: typeLabel || undefined,
+        heroImageUrl: heroImageUrl || undefined,
+        longDescription: longDescription || undefined,
+        whatToBring: whatToBring
+          .split('\n')
+          .map((s) => s.trim())
+          .filter(Boolean),
+        whoItsFor: whoItsFor || undefined,
         classType,
         instructorId,
         roomId,
@@ -108,6 +134,7 @@ export function ClassTemplateFormDialog({
 
   const valid =
     name &&
+    (slug || name) &&
     instructorId &&
     roomId &&
     recurrence.daysOfWeek.length > 0 &&
@@ -128,14 +155,30 @@ export function ClassTemplateFormDialog({
             if (valid) mutation.mutate();
           }}
         >
-          <Field label="Name" htmlFor="t-name">
-            <Input
-              id="t-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Name" htmlFor="t-name">
+              <Input
+                id="t-name"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (!slugTouched) setSlug(slugify(e.target.value));
+                }}
+                required
+              />
+            </Field>
+            <Field label="Slug (URL)" htmlFor="t-slug">
+              <Input
+                id="t-slug"
+                value={slug}
+                onChange={(e) => {
+                  setSlugTouched(true);
+                  setSlug(e.target.value);
+                }}
+                required
+              />
+            </Field>
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <Field label="Type">
@@ -224,6 +267,52 @@ export function ClassTemplateFormDialog({
                 onChange={(e) => setCapacity(Number(e.target.value))}
               />
             </Field>
+          </div>
+
+          <div className="rounded-md border border-line p-3">
+            <p className="mb-3 text-sm font-medium">Public class page</p>
+            <div className="space-y-3">
+              <Field label="Type label (overrides the type on the site)" htmlFor="t-typelabel">
+                <Input
+                  id="t-typelabel"
+                  value={typeLabel}
+                  onChange={(e) => setTypeLabel(e.target.value)}
+                  placeholder="e.g. Athletic Reformer"
+                />
+              </Field>
+              <Field label="Hero image URL" htmlFor="t-hero">
+                <Input
+                  id="t-hero"
+                  type="url"
+                  value={heroImageUrl}
+                  onChange={(e) => setHeroImageUrl(e.target.value)}
+                  placeholder="https://…"
+                />
+              </Field>
+              <Field label="Long description" htmlFor="t-long">
+                <Textarea
+                  id="t-long"
+                  className="min-h-[100px]"
+                  value={longDescription}
+                  onChange={(e) => setLongDescription(e.target.value)}
+                />
+              </Field>
+              <Field label="What to bring (one per line)" htmlFor="t-bring">
+                <Textarea
+                  id="t-bring"
+                  value={whatToBring}
+                  onChange={(e) => setWhatToBring(e.target.value)}
+                  placeholder={'Grip socks\nWater'}
+                />
+              </Field>
+              <Field label="Who it's for" htmlFor="t-who">
+                <Textarea
+                  id="t-who"
+                  value={whoItsFor}
+                  onChange={(e) => setWhoItsFor(e.target.value)}
+                />
+              </Field>
+            </div>
           </div>
 
           <RecurrenceEditor value={recurrence} onChange={setRecurrence} />

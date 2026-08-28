@@ -10,6 +10,11 @@ import { ClassDetailPage } from '@/pages/ClassDetailPage';
 import { ReportsPage } from '@/pages/ReportsPage';
 import { AnnouncementsPage } from '@/pages/AnnouncementsPage';
 import { SettingsPage } from '@/pages/SettingsPage';
+import { EventsPage } from '@/pages/EventsPage';
+import { PromotionsPage } from '@/pages/PromotionsPage';
+import { PackagesPage } from '@/pages/PackagesPage';
+import { SiteContentPage } from '@/pages/SiteContentPage';
+import { WaiversPage } from '@/pages/WaiversPage';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -27,6 +32,11 @@ export const router = createBrowserRouter([
       { path: 'classes', element: <ClassesPage /> },
       { path: 'instructors', element: <InstructorsPage /> },
       { path: 'rooms', element: <RoomsPage /> },
+      { path: 'events', element: <EventsPage /> },
+      { path: 'promotions', element: <PromotionsPage /> },
+      { path: 'packages', element: <PackagesPage /> },
+      { path: 'site-content', element: <SiteContentPage /> },
+      { path: 'waivers', element: <WaiversPage /> },
       { path: 'reports', element: <ReportsPage /> },
       { path: 'announcements', element: <AnnouncementsPage /> },
       {

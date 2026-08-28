@@ -319,7 +319,7 @@ async function seed() {
       whatToBring: ['Grip socks (required)', 'Water', 'A hand towel'],
       whoItsFor:
         'Anyone who likes to work hard to music. No dance experience needed.',
-      heroImageUrl: hero('photo-1518609878373-06d740f60d8b'),
+      heroImageUrl: hero('photo-1600881333168-2ef49b341f30'),
       instructorId: instructors[5].id,
       roomId: matRoom.id,
       durationMinutes: 50,

@@ -3,12 +3,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { pageVariants } from '@pilates/ui';
 import {
   CalendarDays,
+  CalendarHeart,
+  ClipboardCheck,
   Dumbbell,
   DoorOpen,
+  FileText,
   LayoutGrid,
   Megaphone,
   BarChart3,
   Settings,
+  Tag,
+  Wallet,
   LogOut,
 } from 'lucide-react';
 import { cn } from '@pilates/ui';
@@ -19,6 +24,11 @@ const NAV = [
   { to: '/classes', label: 'Classes', icon: LayoutGrid },
   { to: '/instructors', label: 'Instructors', icon: Dumbbell },
   { to: '/rooms', label: 'Rooms', icon: DoorOpen },
+  { to: '/events', label: 'Events', icon: CalendarHeart },
+  { to: '/promotions', label: 'Promotions', icon: Tag },
+  { to: '/packages', label: 'Pricing', icon: Wallet },
+  { to: '/site-content', label: 'Site content', icon: FileText },
+  { to: '/waivers', label: 'Waivers', icon: ClipboardCheck },
   { to: '/reports', label: 'Reports', icon: BarChart3 },
   { to: '/announcements', label: 'Announcements', icon: Megaphone },
   { to: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
