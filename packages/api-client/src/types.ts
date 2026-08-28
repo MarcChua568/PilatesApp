@@ -67,8 +67,14 @@ export interface RecurrenceRule {
 export interface ClassTemplate {
   id: string;
   name: string;
+  slug: string;
   classType: ClassType;
+  typeLabel: string | null;
   description: string | null;
+  heroImageUrl: string | null;
+  longDescription: string | null;
+  whatToBring: string[];
+  whoItsFor: string | null;
   instructorId: string;
   roomId: string;
   durationMinutes: number;
@@ -169,4 +175,119 @@ export interface RateReport {
 export interface DateRange {
   from?: string;
   to?: string;
+}
+
+// ---- MILE brand site ----
+
+export interface EventItem {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string;
+  body: string;
+  coverImageUrl: string | null;
+  startsAt: string;
+  endsAt: string | null;
+  hostInstructorId: string | null;
+  hostInstructor?: Instructor | null;
+  pricePhp: number;
+  capacity: number | null;
+  rsvpCount: number;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EventRsvp {
+  id: string;
+  eventId: string;
+  userId: string;
+  guests: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Promotion {
+  id: string;
+  headline: string;
+  body: string;
+  imageUrl: string | null;
+  ctaLabel: string;
+  ctaHref: string;
+  landingSlug: string | null;
+  showInTopBar: boolean;
+  startsAt: string | null;
+  endsAt: string | null;
+  sortOrder: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type SiteContent = Record<string, Record<string, unknown>>;
+
+export type PackageKind =
+  | 'intro'
+  | 'single'
+  | 'pack'
+  | 'membership'
+  | 'workshop';
+
+export interface StudioPackage {
+  id: string;
+  name: string;
+  slug: string;
+  kind: PackageKind;
+  pricePhp: number;
+  credits: number | null;
+  validityDays: number | null;
+  blurb: string;
+  perks: string[];
+  featured: boolean;
+  sortOrder: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WaiverSubmission {
+  id: string;
+  userId: string;
+  fullName: string;
+  dateOfBirth: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  medicalNotes: string | null;
+  acceptedTerms: boolean;
+  signature: string;
+  submittedAt: string;
+  user?: UserPublic;
+}
+
+export interface SubmitWaiverInput {
+  fullName: string;
+  dateOfBirth: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  medicalNotes?: string;
+  acceptedTerms: boolean;
+  signature: string;
+}
+
+export type NotificationType =
+  | 'booked'
+  | 'waitlist_promoted'
+  | 'reminder'
+  | 'cancelled'
+  | 'welcome'
+  | 'event_rsvp';
+
+export interface AppNotification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  readAt: string | null;
+  createdAt: string;
 }

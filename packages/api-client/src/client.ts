@@ -1,21 +1,29 @@
 import type { Http } from './http';
 import type {
   Announcement,
+  AppNotification,
   Booking,
   BookingsPerClassRow,
   CancelBookingResult,
   ClassInstance,
   ClassTemplate,
   DateRange,
+  EventItem,
+  EventRsvp,
   Instructor,
   Paginated,
+  Promotion,
   RateReport,
   Room,
   RoomSpot,
+  SiteContent,
   SpotMapEntry,
+  StudioPackage,
   StudioSettings,
+  SubmitWaiverInput,
   Tokens,
   UserPublic,
+  WaiverSubmission,
 } from './types';
 
 function qs(params: object): string {
@@ -86,6 +94,8 @@ export function createClient(http: Http) {
     classTemplates: {
       list: () => http.get<ClassTemplate[]>('/class-templates'),
       get: (id: string) => http.get<ClassTemplate>(`/class-templates/${id}`),
+      getBySlug: (slug: string) =>
+        http.get<ClassTemplate>(`/class-templates/by-slug/${slug}`),
       create: (body: unknown) => http.post<ClassTemplate>('/class-templates', body),
       update: (id: string, body: unknown) => http.patch<ClassTemplate>(`/class-templates/${id}`, body),
       deactivate: (id: string) => http.patch<ClassTemplate>(`/class-templates/${id}/deactivate`),
@@ -136,6 +146,63 @@ export function createClient(http: Http) {
     settings: {
       get: () => http.get<StudioSettings>('/settings'),
       update: (body: Partial<StudioSettings>) => http.patch<StudioSettings>('/settings', body),
+    },
+
+    events: {
+      list: () => http.get<EventItem[]>('/events'),
+      adminList: () => http.get<EventItem[]>('/events/admin/all'),
+      get: (slug: string) => http.get<EventItem>(`/events/${slug}`),
+      create: (body: unknown) => http.post<EventItem>('/events', body),
+      update: (id: string, body: unknown) =>
+        http.patch<EventItem>(`/events/${id}`, body),
+      remove: (id: string) => http.del<void>(`/events/${id}`),
+      rsvp: (id: string, guests = 0) =>
+        http.post<EventRsvp>(`/events/${id}/rsvp`, { guests }),
+    },
+
+    promotions: {
+      list: () => http.get<Promotion[]>('/promotions'),
+      adminList: () => http.get<Promotion[]>('/promotions/admin/all'),
+      get: (slug: string) => http.get<Promotion>(`/promotions/${slug}`),
+      create: (body: unknown) => http.post<Promotion>('/promotions', body),
+      update: (id: string, body: unknown) =>
+        http.patch<Promotion>(`/promotions/${id}`, body),
+      remove: (id: string) => http.del<void>(`/promotions/${id}`),
+    },
+
+    siteContent: {
+      get: () => http.get<SiteContent>('/site-content'),
+      update: (key: string, data: Record<string, unknown>) =>
+        http.patch<{ key: string; data: Record<string, unknown> }>(
+          `/site-content/${key}`,
+          { data },
+        ),
+    },
+
+    packages: {
+      list: () => http.get<StudioPackage[]>('/packages'),
+      adminList: () => http.get<StudioPackage[]>('/packages/admin/all'),
+      get: (slug: string) => http.get<StudioPackage>(`/packages/${slug}`),
+      create: (body: unknown) => http.post<StudioPackage>('/packages', body),
+      update: (id: string, body: unknown) =>
+        http.patch<StudioPackage>(`/packages/${id}`, body),
+      remove: (id: string) => http.del<void>(`/packages/${id}`),
+    },
+
+    waivers: {
+      submit: (body: SubmitWaiverInput) =>
+        http.post<WaiverSubmission>('/waivers', body),
+      mine: () => http.get<WaiverSubmission | null>('/waivers/me'),
+      list: () => http.get<WaiverSubmission[]>('/waivers'),
+      getForUser: (userId: string) =>
+        http.get<WaiverSubmission>(`/waivers/${userId}`),
+    },
+
+    notifications: {
+      list: () => http.get<AppNotification[]>('/notifications'),
+      markRead: (id: string) =>
+        http.patch<void>(`/notifications/${id}/read`),
+      markAllRead: () => http.post<void>('/notifications/read-all', {}),
     },
   };
 }

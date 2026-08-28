@@ -23,6 +23,21 @@ export const queryKeys = {
   announcements: ['announcements'] as const,
   settings: ['settings'] as const,
   reports: (range: DateRange) => ['reports', range] as const,
+  classTemplateBySlug: (slug: string) =>
+    ['class-templates', 'by-slug', slug] as const,
+  events: ['events'] as const,
+  adminEvents: ['events', 'admin'] as const,
+  event: (slug: string) => ['events', slug] as const,
+  promotions: ['promotions'] as const,
+  adminPromotions: ['promotions', 'admin'] as const,
+  promotion: (slug: string) => ['promotions', slug] as const,
+  siteContent: ['site-content'] as const,
+  packages: ['packages'] as const,
+  adminPackages: ['packages', 'admin'] as const,
+  studioPackage: (slug: string) => ['packages', slug] as const,
+  myWaiver: ['waivers', 'me'] as const,
+  waivers: ['waivers'] as const,
+  notifications: ['notifications'] as const,
 };
 
 /**
@@ -161,6 +176,205 @@ export function makeHooks(api: Client) {
     });
   };
 
+  // ---- MILE brand site ----
+
+  const useClassTemplateBySlug = (slug: string | undefined) =>
+    useQuery({
+      queryKey: queryKeys.classTemplateBySlug(slug ?? ''),
+      queryFn: () => api.classTemplates.getBySlug(slug as string),
+      enabled: !!slug,
+    });
+
+  const useEvents = () =>
+    useQuery({ queryKey: queryKeys.events, queryFn: api.events.list });
+
+  const useAdminEvents = () =>
+    useQuery({ queryKey: queryKeys.adminEvents, queryFn: api.events.adminList });
+
+  const useEvent = (slug: string | undefined) =>
+    useQuery({
+      queryKey: queryKeys.event(slug ?? ''),
+      queryFn: () => api.events.get(slug as string),
+      enabled: !!slug,
+    });
+
+  const useRsvpMutation = (slug: string) => {
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: ({ id, guests }: { id: string; guests?: number }) =>
+        api.events.rsvp(id, guests ?? 0),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: queryKeys.event(slug) });
+        qc.invalidateQueries({ queryKey: queryKeys.events });
+        qc.invalidateQueries({ queryKey: queryKeys.notifications });
+      },
+    });
+  };
+
+  const useAdminEventMutations = () => {
+    const qc = useQueryClient();
+    const invalidate = () => {
+      qc.invalidateQueries({ queryKey: queryKeys.events });
+      qc.invalidateQueries({ queryKey: queryKeys.adminEvents });
+    };
+    return {
+      create: useMutation({
+        mutationFn: (body: unknown) => api.events.create(body),
+        onSuccess: invalidate,
+      }),
+      update: useMutation({
+        mutationFn: ({ id, body }: { id: string; body: unknown }) =>
+          api.events.update(id, body),
+        onSuccess: invalidate,
+      }),
+      remove: useMutation({
+        mutationFn: (id: string) => api.events.remove(id),
+        onSuccess: invalidate,
+      }),
+    };
+  };
+
+  const usePromotions = () =>
+    useQuery({ queryKey: queryKeys.promotions, queryFn: api.promotions.list });
+
+  const useAdminPromotions = () =>
+    useQuery({
+      queryKey: queryKeys.adminPromotions,
+      queryFn: api.promotions.adminList,
+    });
+
+  const usePromotion = (slug: string | undefined) =>
+    useQuery({
+      queryKey: queryKeys.promotion(slug ?? ''),
+      queryFn: () => api.promotions.get(slug as string),
+      enabled: !!slug,
+    });
+
+  const useAdminPromotionMutations = () => {
+    const qc = useQueryClient();
+    const invalidate = () => {
+      qc.invalidateQueries({ queryKey: queryKeys.promotions });
+      qc.invalidateQueries({ queryKey: queryKeys.adminPromotions });
+    };
+    return {
+      create: useMutation({
+        mutationFn: (body: unknown) => api.promotions.create(body),
+        onSuccess: invalidate,
+      }),
+      update: useMutation({
+        mutationFn: ({ id, body }: { id: string; body: unknown }) =>
+          api.promotions.update(id, body),
+        onSuccess: invalidate,
+      }),
+      remove: useMutation({
+        mutationFn: (id: string) => api.promotions.remove(id),
+        onSuccess: invalidate,
+      }),
+    };
+  };
+
+  const useSiteContent = () =>
+    useQuery({
+      queryKey: queryKeys.siteContent,
+      queryFn: api.siteContent.get,
+    });
+
+  const useUpdateSiteContentMutation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: ({
+        key,
+        data,
+      }: {
+        key: string;
+        data: Record<string, unknown>;
+      }) => api.siteContent.update(key, data),
+      onSuccess: () =>
+        qc.invalidateQueries({ queryKey: queryKeys.siteContent }),
+    });
+  };
+
+  const usePackages = () =>
+    useQuery({ queryKey: queryKeys.packages, queryFn: api.packages.list });
+
+  const useAdminPackages = () =>
+    useQuery({
+      queryKey: queryKeys.adminPackages,
+      queryFn: api.packages.adminList,
+    });
+
+  const usePackage = (slug: string | undefined) =>
+    useQuery({
+      queryKey: queryKeys.studioPackage(slug ?? ''),
+      queryFn: () => api.packages.get(slug as string),
+      enabled: !!slug,
+    });
+
+  const useAdminPackageMutations = () => {
+    const qc = useQueryClient();
+    const invalidate = () => {
+      qc.invalidateQueries({ queryKey: queryKeys.packages });
+      qc.invalidateQueries({ queryKey: queryKeys.adminPackages });
+    };
+    return {
+      create: useMutation({
+        mutationFn: (body: unknown) => api.packages.create(body),
+        onSuccess: invalidate,
+      }),
+      update: useMutation({
+        mutationFn: ({ id, body }: { id: string; body: unknown }) =>
+          api.packages.update(id, body),
+        onSuccess: invalidate,
+      }),
+      remove: useMutation({
+        mutationFn: (id: string) => api.packages.remove(id),
+        onSuccess: invalidate,
+      }),
+    };
+  };
+
+  const useMyWaiver = () =>
+    useQuery({ queryKey: queryKeys.myWaiver, queryFn: api.waivers.mine });
+
+  const useWaivers = () =>
+    useQuery({ queryKey: queryKeys.waivers, queryFn: api.waivers.list });
+
+  const useSubmitWaiverMutation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: (body: Parameters<typeof api.waivers.submit>[0]) =>
+        api.waivers.submit(body),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: queryKeys.me });
+        qc.invalidateQueries({ queryKey: queryKeys.myWaiver });
+      },
+    });
+  };
+
+  const useNotifications = () =>
+    useQuery({
+      queryKey: queryKeys.notifications,
+      queryFn: api.notifications.list,
+    });
+
+  const useMarkNotificationReadMutation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: (id: string) => api.notifications.markRead(id),
+      onSuccess: () =>
+        qc.invalidateQueries({ queryKey: queryKeys.notifications }),
+    });
+  };
+
+  const useMarkAllNotificationsReadMutation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: () => api.notifications.markAllRead(),
+      onSuccess: () =>
+        qc.invalidateQueries({ queryKey: queryKeys.notifications }),
+    });
+  };
+
   return {
     useInstructors,
     useRooms,
@@ -180,6 +394,28 @@ export function makeHooks(api: Client) {
     useSignWaiverMutation,
     useAcceptOfferMutation,
     useCancelMyBookingMutation,
+    useClassTemplateBySlug,
+    useEvents,
+    useAdminEvents,
+    useEvent,
+    useRsvpMutation,
+    useAdminEventMutations,
+    usePromotions,
+    useAdminPromotions,
+    usePromotion,
+    useAdminPromotionMutations,
+    useSiteContent,
+    useUpdateSiteContentMutation,
+    usePackages,
+    useAdminPackages,
+    usePackage,
+    useAdminPackageMutations,
+    useMyWaiver,
+    useWaivers,
+    useSubmitWaiverMutation,
+    useNotifications,
+    useMarkNotificationReadMutation,
+    useMarkAllNotificationsReadMutation,
   };
 }
 
