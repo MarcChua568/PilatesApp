@@ -6,9 +6,14 @@ import { CapacityService } from './capacity.service';
 import { BookingsController } from './bookings.controller';
 import { SpotMapController } from './spot-map.controller';
 import { SettingsModule } from '../settings/settings.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Booking, RoomSpot]), SettingsModule],
+  imports: [
+    TypeOrmModule.forFeature([Booking, RoomSpot]),
+    SettingsModule,
+    NotificationsModule,
+  ],
   providers: [CapacityService],
   controllers: [BookingsController, SpotMapController],
   exports: [CapacityService],

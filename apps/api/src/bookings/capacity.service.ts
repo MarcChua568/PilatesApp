@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { DataSource, EntityManager, In } from 'typeorm';
 import { Booking } from './entities/booking.entity';
@@ -12,6 +13,7 @@ import { Room } from '../rooms/entities/room.entity';
 import { RoomSpot } from '../rooms/entities/room-spot.entity';
 import { User } from '../users/entities/user.entity';
 import { SettingsService } from '../settings/settings.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { BookingStatus } from '../common/enums/booking-status.enum';
 import { ClassInstanceStatus } from '../common/enums/class-instance-status.enum';
 
@@ -35,12 +37,56 @@ export interface BookParams {
 
 const ACTIVE_STATUSES = [BookingStatus.BOOKED, BookingStatus.WAITLISTED];
 
+/** What promoteOrOfferNextWaitlisted did, so the caller can notify the member. */
+interface PromotionOutcome {
+  action: 'promoted' | 'offered';
+  memberId: string | null;
+  className: string;
+  startTime: Date;
+}
+
+function whenLabel(date: Date): string {
+  try {
+    return date.toLocaleString('en-PH', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    });
+  } catch {
+    return 'the scheduled time';
+  }
+}
+
 @Injectable()
 export class CapacityService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly settingsService: SettingsService,
+    @Optional()
+    private readonly notifications?: NotificationsService,
   ) {}
+
+  /** Best-effort in-app notification; never blocks or fails a booking op. */
+  private async notify(outcome: PromotionOutcome | null): Promise<void> {
+    if (!this.notifications || !outcome || !outcome.memberId) return;
+    if (outcome.action === 'promoted') {
+      await this.notifications.safeCreate(
+        outcome.memberId,
+        'waitlist_promoted',
+        'A spot opened up',
+        `You're now booked into ${outcome.className} on ${whenLabel(outcome.startTime)}.`,
+      );
+    } else {
+      await this.notifications.safeCreate(
+        outcome.memberId,
+        'waitlist_promoted',
+        'A spot was offered to you',
+        `Accept your place in ${outcome.className} before the offer expires.`,
+      );
+    }
+  }
 
   /**
    * Book the calling member (plus any guests) into a class, or waitlist them
@@ -52,7 +98,18 @@ export class CapacityService {
   async book(bookerUserId: string, params: BookParams): Promise<Booking[]> {
     const settings = await this.settingsService.get();
 
-    return this.dataSource.transaction(async (manager) => {
+    const { rows, booked, waitlisted } = await this.dataSource.transaction(
+      async (manager) => {
+      let booked:
+        | { memberId: string | null; className: string; startTime: Date }
+        | null = null;
+      let waitlisted:
+        | {
+            memberId: string | null;
+            className: string;
+            position: number | null;
+          }
+        | null = null;
       const classInstance = await manager
         .createQueryBuilder(ClassInstance, 'ci')
         .setLock('pessimistic_write')
@@ -157,7 +214,12 @@ export class CapacityService {
 
         classInstance.bookedCount += attendeeCount;
         await manager.save(classInstance);
-        return manager.save(rows);
+        booked = {
+          memberId: attendeeId,
+          className: classInstance.name,
+          startTime: classInstance.startTime,
+        };
+        return { rows: await manager.save(rows), booked, waitlisted };
       }
 
       if (attendeeCount > 1) {
@@ -182,8 +244,34 @@ export class CapacityService {
         waitlistPosition: (lastWaitlisted?.waitlistPosition ?? 0) + 1,
         bookedAt: new Date(),
       });
-      return [await manager.save(booking)];
+      const saved = await manager.save(booking);
+      waitlisted = {
+        memberId: attendeeId,
+        className: classInstance.name,
+        position: saved.waitlistPosition,
+      };
+      return { rows: [saved], booked, waitlisted };
     });
+
+    if (this.notifications) {
+      if (booked && booked.memberId) {
+        await this.notifications.safeCreate(
+          booked.memberId,
+          'booked',
+          "You're booked",
+          `${booked.className} on ${whenLabel(booked.startTime)}.`,
+        );
+      } else if (waitlisted && waitlisted.memberId) {
+        await this.notifications.safeCreate(
+          waitlisted.memberId,
+          'booked',
+          "You're on the waitlist",
+          `Position ${waitlisted.position} for ${waitlisted.className}. We'll let you know if a spot opens.`,
+        );
+      }
+    }
+
+    return rows;
   }
 
   async cancel(
@@ -192,7 +280,12 @@ export class CapacityService {
   ): Promise<Booking & { wasLateCancellation: boolean }> {
     const settings = await this.settingsService.get();
 
-    return this.dataSource.transaction(async (manager) => {
+    const { result, promotion, cancelledFor } =
+      await this.dataSource.transaction(async (manager) => {
+      let promotion: PromotionOutcome | null = null;
+      let cancelledFor:
+        | { memberId: string | null; className: string; startTime: Date }
+        | null = null;
       const booking = await manager
         .createQueryBuilder(Booking, 'b')
         .where('b.id = :id', { id: bookingId })
@@ -229,15 +322,44 @@ export class CapacityService {
       if (wasBooked && classInstance) {
         classInstance.bookedCount -= 1;
         await manager.save(classInstance);
-        await this.promoteOrOfferNextWaitlisted(manager, classInstance);
+        promotion = await this.promoteOrOfferNextWaitlisted(
+          manager,
+          classInstance,
+        );
       }
 
-      return Object.assign(booking, { wasLateCancellation });
+      if (classInstance) {
+        cancelledFor = {
+          memberId: booking.memberId,
+          className: classInstance.name,
+          startTime: classInstance.startTime,
+        };
+      }
+
+      return {
+        result: Object.assign(booking, { wasLateCancellation }),
+        promotion,
+        cancelledFor,
+      };
     });
+
+    if (this.notifications && cancelledFor && cancelledFor.memberId) {
+      await this.notifications.safeCreate(
+        cancelledFor.memberId,
+        'cancelled',
+        'Booking cancelled',
+        `${cancelledFor.className} on ${whenLabel(cancelledFor.startTime)}.`,
+      );
+    }
+    await this.notify(promotion);
+
+    return result;
   }
 
   async recordNoShow(bookingId: string, staffUserId: string): Promise<Booking> {
-    return this.dataSource.transaction(async (manager) => {
+    const { result, promotion } = await this.dataSource.transaction(
+      async (manager) => {
+      let promotion: PromotionOutcome | null = null;
       const booking = await manager.findOne(Booking, {
         where: { id: bookingId },
       });
@@ -265,11 +387,17 @@ export class CapacityService {
         booking.spotId = null;
         await manager.save(booking);
         await manager.save(classInstance);
-        await this.promoteOrOfferNextWaitlisted(manager, classInstance);
+        promotion = await this.promoteOrOfferNextWaitlisted(
+          manager,
+          classInstance,
+        );
       }
 
-      return booking;
+      return { result: booking, promotion };
     });
+
+    await this.notify(promotion);
+    return result;
   }
 
   /**
@@ -277,7 +405,11 @@ export class CapacityService {
    * cutoff window. Re-checks capacity under the lock.
    */
   async acceptOffer(bookingId: string, userId: string): Promise<Booking> {
-    return this.dataSource.transaction(async (manager) => {
+    const { result, confirmed } = await this.dataSource.transaction(
+      async (manager) => {
+      let confirmed:
+        | { memberId: string | null; className: string; startTime: Date }
+        | null = null;
       const booking = await manager
         .createQueryBuilder(Booking, 'b')
         .where('b.id = :id', { id: bookingId })
@@ -330,8 +462,24 @@ export class CapacityService {
 
       classInstance.bookedCount += 1;
       await manager.save(classInstance);
-      return booking;
+      confirmed = {
+        memberId: booking.memberId,
+        className: classInstance.name,
+        startTime: classInstance.startTime,
+      };
+      return { result: booking, confirmed };
     });
+
+    if (this.notifications && confirmed && confirmed.memberId) {
+      await this.notifications.safeCreate(
+        confirmed.memberId,
+        'waitlist_promoted',
+        "You're in",
+        `Your spot in ${confirmed.className} on ${whenLabel(confirmed.startTime)} is confirmed.`,
+      );
+    }
+
+    return result;
   }
 
   /**
@@ -351,22 +499,28 @@ export class CapacityService {
 
     let count = 0;
     for (const b of expired) {
-      await this.dataSource.transaction(async (manager) => {
+      const promotion = await this.dataSource.transaction(async (manager) => {
+        let outcome: PromotionOutcome | null = null;
         const classInstance = await manager
           .createQueryBuilder(ClassInstance, 'ci')
           .setLock('pessimistic_write')
           .where('ci.id = :id', { id: b.classInstanceId })
           .getOne();
         const fresh = await manager.findOne(Booking, { where: { id: b.id } });
-        if (!fresh || !fresh.promotionOfferedAt) return;
+        if (!fresh || !fresh.promotionOfferedAt) return null;
         fresh.promotionOfferedAt = null;
         fresh.promotionOfferExpiresAt = null;
         await manager.save(fresh);
         if (classInstance) {
-          await this.promoteOrOfferNextWaitlisted(manager, classInstance);
+          outcome = await this.promoteOrOfferNextWaitlisted(
+            manager,
+            classInstance,
+          );
         }
         count += 1;
+        return outcome;
       });
+      await this.notify(promotion);
     }
     return count;
   }
@@ -376,9 +530,9 @@ export class CapacityService {
   private async promoteOrOfferNextWaitlisted(
     manager: EntityManager,
     classInstance: ClassInstance,
-  ): Promise<void> {
-    if (classInstance.startTime.getTime() <= Date.now()) return;
-    if (classInstance.bookedCount >= classInstance.capacity) return;
+  ): Promise<PromotionOutcome | null> {
+    if (classInstance.startTime.getTime() <= Date.now()) return null;
+    if (classInstance.bookedCount >= classInstance.capacity) return null;
 
     const next = await manager
       .createQueryBuilder(Booking, 'b')
@@ -387,7 +541,7 @@ export class CapacityService {
       .andWhere('b.promotion_offered_at IS NULL')
       .orderBy('b.waitlist_position', 'ASC')
       .getOne();
-    if (!next) return;
+    if (!next) return null;
 
     const settings = await this.settingsService.get();
     const hoursUntilStart =
@@ -405,7 +559,12 @@ export class CapacityService {
       await manager.save(next);
       classInstance.bookedCount += 1;
       await manager.save(classInstance);
-      return;
+      return {
+        action: 'promoted',
+        memberId: next.memberId,
+        className: classInstance.name,
+        startTime: classInstance.startTime,
+      };
     }
 
     // inside the cutoff → offer, don't seat
@@ -415,6 +574,12 @@ export class CapacityService {
       now + settings.waitlistOfferTtlMinutes * 60_000,
     );
     await manager.save(next);
+    return {
+      action: 'offered',
+      memberId: next.memberId,
+      className: classInstance.name,
+      startTime: classInstance.startTime,
+    };
   }
 
   private async resolveRequestedSpots(

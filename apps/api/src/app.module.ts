@@ -16,6 +16,12 @@ import { AttendanceModule } from './attendance/attendance.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
 import { ReportsModule } from './reports/reports.module';
 import { InternalModule } from './internal/internal.module';
+import { EventsModule } from './events/events.module';
+import { PromotionsModule } from './promotions/promotions.module';
+import { SiteContentModule } from './site-content/site-content.module';
+import { PackagesModule } from './packages/packages.module';
+import { WaiversModule } from './waivers/waivers.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -55,6 +61,12 @@ import { InternalModule } from './internal/internal.module';
     AnnouncementsModule,
     ReportsModule,
     InternalModule,
+    EventsModule,
+    PromotionsModule,
+    SiteContentModule,
+    PackagesModule,
+    WaiversModule,
+    NotificationsModule,
   ],
   controllers: [HealthController],
 })
