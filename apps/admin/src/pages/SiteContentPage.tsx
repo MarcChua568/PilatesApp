@@ -148,6 +148,29 @@ function FieldEditor({
       </Field>
     );
   }
+  if (field.type === 'video') {
+    const url = (value as string) ?? '';
+    return (
+      <Field label={field.label} htmlFor={`f-${field.path}`}>
+        <div className="flex gap-3">
+          {url && (
+            <video
+              src={url}
+              muted
+              className="h-16 w-24 shrink-0 rounded object-cover"
+            />
+          )}
+          <Input
+            id={`f-${field.path}`}
+            type="url"
+            value={url}
+            placeholder="https://…mp4"
+            onChange={(e) => onChange(e.target.value)}
+          />
+        </div>
+      </Field>
+    );
+  }
   if (field.type === 'list') {
     const items = Array.isArray(value) ? (value as string[]) : [];
     return (

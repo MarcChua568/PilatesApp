@@ -1,4 +1,4 @@
-export type FieldType = 'text' | 'textarea' | 'image' | 'list' | 'kv-list';
+export type FieldType = 'text' | 'textarea' | 'image' | 'video' | 'list' | 'kv-list';
 
 export interface FieldDef {
   path: string; // key within the block's data object
@@ -102,7 +102,8 @@ export const CONTENT_SCHEMA: BlockDef[] = [
     fields: [
       { path: 'eyebrow', label: 'Eyebrow', type: 'text' },
       { path: 'heading', label: 'Heading', type: 'text' },
-      { path: 'imageUrl', label: 'Background image', type: 'image' },
+      { path: 'imageUrl', label: 'Background image (fallback / video poster)', type: 'image' },
+      { path: 'videoUrl', label: 'Background video (overrides image when set)', type: 'video' },
     ],
   },
   {

@@ -28,6 +28,8 @@ export function HomePage() {
     eyebrow: 'MILE Wellness · Salcedo Village, Makati',
     heading: 'A little further every day.',
     imageUrl: '/img/hero.jpg',
+    // TODO: swap for real MILE studio B-roll before launch.
+    videoUrl: 'https://videos.pexels.com/video-files/8480552/8480552-hd_1920_1080_25fps.mp4',
   });
   const introBlk = block(content, 'home.intro', {
     eyebrow: 'Move. Inspire. Live. Evolve.',
@@ -53,11 +55,25 @@ export function HomePage() {
 
       {/* Hero */}
       <section className="relative flex min-h-[92vh] items-end overflow-hidden">
-        <img
-          src={heroBlk.imageUrl || '/img/hero.jpg'}
-          alt=""
-          className="editorial-img absolute inset-0 h-full w-full object-cover"
-        />
+        {heroBlk.videoUrl ? (
+          <video
+            key={heroBlk.videoUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={heroBlk.imageUrl || '/img/hero.jpg'}
+            className="editorial-img absolute inset-0 h-full w-full object-cover"
+          >
+            <source src={heroBlk.videoUrl} type="video/mp4" />
+          </video>
+        ) : (
+          <img
+            src={heroBlk.imageUrl || '/img/hero.jpg'}
+            alt=""
+            className="editorial-img absolute inset-0 h-full w-full object-cover"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-deep/85 via-deep/30 to-deep/40" />
         <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 text-deep-fg">
           <motion.p
