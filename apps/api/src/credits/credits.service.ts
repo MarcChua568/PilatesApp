@@ -127,7 +127,9 @@ export class CreditsService {
           expiresAt,
         }),
       );
-      const claimUrl = `${process.env.CORS_ORIGINS?.split(',')[0] ?? ''}/gift/${token}`;
+      const webUrl =
+        process.env.WEB_APP_URL || process.env.CORS_ORIGINS?.split(',')[0] || '';
+      const claimUrl = `${webUrl}/gift/${token}`;
       await this.emailService.giftInvite(
         dto.recipientEmail,
         sender.fullName,
