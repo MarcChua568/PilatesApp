@@ -1,48 +1,50 @@
-import { useState } from 'react';
-import { Check } from 'lucide-react';
+import { hooks } from '@/lib/api';
 import { Seo } from '@/components/site/Seo';
 import { Reveal } from '@/components/site/Reveal';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { ProductCard } from '@/components/site/ProductCard';
 
 export function ShopPage() {
-  const [done, setDone] = useState(false);
+  const { data: products, isLoading } = hooks.useProducts();
 
   return (
-    <div className="mx-auto max-w-2xl px-5 py-24 text-center">
+    <div className="mx-auto max-w-6xl px-5 py-20">
       <Seo
         title="MILE Shop"
-        description="Grip socks, apparel and small-batch wellness goods — the MILE Shop opens soon."
+        description="MILE Shop — apparel, grip socks and wellness goods, including pieces from our MILI partnership."
         path="/shop"
       />
 
-      <Reveal>
+      <Reveal className="mx-auto max-w-2xl text-center">
         <p className="eyebrow">MILE Shop</p>
         <h1 className="mt-2 font-display text-4xl font-light tracking-tight sm:text-5xl">
-          Opening soon
+          Made to move with you.
         </h1>
         <p className="mt-4 text-muted">
-          Grip socks, a small apparel line, and the wellness goods we actually
-          use around the studio. We're putting it together — leave your email and
-          we'll tell you when it's live.
+          Grip socks, apparel and small-batch wellness goods we actually use
+          around the studio — plus a curated drop from our partners at{' '}
+          <span className="font-medium text-ink">MILI</span>. Most pieces are
+          available in-studio; a few link out to shop directly.
         </p>
       </Reveal>
 
-      {done ? (
-        <Reveal className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent/15 px-4 py-2 text-sm text-accent">
-          <Check className="h-4 w-4" /> You're on the list.
+      {isLoading && (
+        <p className="mt-16 text-center text-muted">Loading…</p>
+      )}
+
+      {!isLoading && !products?.length && (
+        <Reveal className="mx-auto mt-16 max-w-md text-center text-muted">
+          <p>The shop is being restocked — check back soon.</p>
         </Reveal>
-      ) : (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setDone(true);
-          }}
-          className="mx-auto mt-8 flex max-w-sm gap-2"
-        >
-          <Input type="email" required placeholder="you@example.com" />
-          <Button type="submit">Notify me</Button>
-        </form>
+      )}
+
+      {!!products?.length && (
+        <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {products.map((p) => (
+            <Reveal key={p.id}>
+              <ProductCard product={p} />
+            </Reveal>
+          ))}
+        </div>
       )}
     </div>
   );

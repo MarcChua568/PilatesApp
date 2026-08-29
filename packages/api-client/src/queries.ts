@@ -39,6 +39,11 @@ export const queryKeys = {
   myWaiver: ['waivers', 'me'] as const,
   waivers: ['waivers'] as const,
   notifications: ['notifications'] as const,
+  products: ['products'] as const,
+  adminProducts: ['products', 'admin'] as const,
+  product: (slug: string) => ['products', slug] as const,
+  teamUsers: ['users', 'team'] as const,
+  myCredits: ['credits', 'me'] as const,
 };
 
 /**
@@ -361,6 +366,103 @@ export function makeHooks(api: Client) {
     };
   };
 
+  const useProducts = () =>
+    useQuery({ queryKey: queryKeys.products, queryFn: api.products.list });
+
+  const useAdminProducts = () =>
+    useQuery({
+      queryKey: queryKeys.adminProducts,
+      queryFn: api.products.adminList,
+    });
+
+  const useProduct = (slug: string | undefined) =>
+    useQuery({
+      queryKey: queryKeys.product(slug ?? ''),
+      queryFn: () => api.products.get(slug as string),
+      enabled: !!slug,
+    });
+
+  const useAdminProductMutations = () => {
+    const qc = useQueryClient();
+    const invalidate = () => {
+      qc.invalidateQueries({ queryKey: queryKeys.products });
+      qc.invalidateQueries({ queryKey: queryKeys.adminProducts });
+    };
+    return {
+      create: useMutation({
+        mutationFn: (body: unknown) => api.products.create(body),
+        onSuccess: invalidate,
+      }),
+      update: useMutation({
+        mutationFn: ({ id, body }: { id: string; body: unknown }) =>
+          api.products.update(id, body),
+        onSuccess: invalidate,
+      }),
+      remove: useMutation({
+        mutationFn: (id: string) => api.products.remove(id),
+        onSuccess: invalidate,
+      }),
+    };
+  };
+
+  // Superadmin-only team access management.
+  const useTeamUsers = () =>
+    useQuery({
+      queryKey: queryKeys.teamUsers,
+      queryFn: () => api.users.list({ role: 'staff,admin,superadmin' }),
+    });
+
+  const useTeamMutations = () => {
+    const qc = useQueryClient();
+    const invalidate = () =>
+      qc.invalidateQueries({ queryKey: queryKeys.teamUsers });
+    return {
+      createStaff: useMutation({
+        mutationFn: (body: Parameters<typeof api.users.createStaff>[0]) =>
+          api.users.createStaff(body),
+        onSuccess: invalidate,
+      }),
+      updateAccess: useMutation({
+        mutationFn: ({
+          id,
+          body,
+        }: {
+          id: string;
+          body: Parameters<typeof api.users.updateAccess>[1];
+        }) => api.users.updateAccess(id, body),
+        onSuccess: invalidate,
+      }),
+    };
+  };
+
+  const useMyCredits = () =>
+    useQuery({ queryKey: queryKeys.myCredits, queryFn: api.credits.me });
+
+  const usePurchaseCreditsMutation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: (amount: number) => api.credits.purchase(amount),
+      onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.myCredits }),
+    });
+  };
+
+  const useGiftCreditsMutation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: (body: Parameters<typeof api.credits.gift>[0]) =>
+        api.credits.gift(body),
+      onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.myCredits }),
+    });
+  };
+
+  const useClaimGiftMutation = () => {
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: (token: string) => api.credits.claim(token),
+      onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.myCredits }),
+    });
+  };
+
   const useMyWaiver = () =>
     useQuery({ queryKey: queryKeys.myWaiver, queryFn: api.waivers.mine });
 
@@ -447,6 +549,16 @@ export function makeHooks(api: Client) {
     useNotifications,
     useMarkNotificationReadMutation,
     useMarkAllNotificationsReadMutation,
+    useProducts,
+    useAdminProducts,
+    useProduct,
+    useAdminProductMutations,
+    useTeamUsers,
+    useTeamMutations,
+    useMyCredits,
+    usePurchaseCreditsMutation,
+    useGiftCreditsMutation,
+    useClaimGiftMutation,
   };
 }
 

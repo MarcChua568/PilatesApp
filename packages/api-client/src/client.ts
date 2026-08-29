@@ -7,11 +7,13 @@ import type {
   CancelBookingResult,
   ClassInstance,
   ClassTemplate,
+  CreditsSummary,
   DateRange,
   EventItem,
   EventRsvp,
   Instructor,
   Paginated,
+  Product,
   Promotion,
   RateReport,
   Room,
@@ -66,6 +68,18 @@ export function createClient(http: Http) {
     users: {
       list: (params: { role?: string; q?: string; page?: number; pageSize?: number } = {}) =>
         http.get<Paginated<UserPublic>>(`/users${qs(params)}`),
+      // Superadmin only — create/manage other portal users' access.
+      createStaff: (body: {
+        email: string;
+        password: string;
+        fullName: string;
+        role: 'staff' | 'admin';
+        permissions?: string[];
+      }) => http.post<UserPublic>('/users/staff', body),
+      updateAccess: (
+        id: string,
+        body: { role?: 'staff' | 'admin'; permissions?: string[] },
+      ) => http.patch<UserPublic>(`/users/${id}/access`, body),
     },
 
     instructors: {
@@ -191,6 +205,26 @@ export function createClient(http: Http) {
       update: (id: string, body: unknown) =>
         http.patch<StudioPackage>(`/packages/${id}`, body),
       remove: (id: string) => http.del<void>(`/packages/${id}`),
+    },
+
+    credits: {
+      me: () => http.get<CreditsSummary>('/credits/me'),
+      purchase: (amount: number) =>
+        http.post<{ balance: number }>('/credits/purchase', { amount }),
+      gift: (body: { recipientEmail: string; amount: number; message?: string }) =>
+        http.post<{ ok: true }>('/credits/gift', body),
+      claim: (token: string) =>
+        http.post<{ balance: number }>(`/credits/gift/${token}/claim`, {}),
+    },
+
+    products: {
+      list: () => http.get<Product[]>('/products'),
+      adminList: () => http.get<Product[]>('/products/admin/all'),
+      get: (slug: string) => http.get<Product>(`/products/${slug}`),
+      create: (body: unknown) => http.post<Product>('/products', body),
+      update: (id: string, body: unknown) =>
+        http.patch<Product>(`/products/${id}`, body),
+      remove: (id: string) => http.del<void>(`/products/${id}`),
     },
 
     waivers: {

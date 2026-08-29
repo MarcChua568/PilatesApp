@@ -34,6 +34,7 @@ const LINKS = [
   { to: '/instructors', label: 'Instructors' },
   { to: '/events', label: 'Events' },
   { to: '/pricing', label: 'Pricing' },
+  { to: '/shop', label: 'Shop' },
   { to: '/about', label: 'About' },
 ];
 
@@ -41,7 +42,6 @@ const MORE = [
   { to: '/the-space', label: 'The Space' },
   { to: '/location', label: 'Location' },
   { to: '/contact', label: 'Contact' },
-  { to: '/shop', label: 'Shop' },
 ];
 
 export function SiteHeader({ overHero = false }: { overHero?: boolean }) {

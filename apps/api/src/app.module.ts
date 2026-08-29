@@ -22,6 +22,8 @@ import { SiteContentModule } from './site-content/site-content.module';
 import { PackagesModule } from './packages/packages.module';
 import { WaiversModule } from './waivers/waivers.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ShopModule } from './shop/shop.module';
+import { CreditsModule } from './credits/credits.module';
 
 @Module({
   imports: [
@@ -67,6 +69,8 @@ import { NotificationsModule } from './notifications/notifications.module';
     PackagesModule,
     WaiversModule,
     NotificationsModule,
+    ShopModule,
+    CreditsModule,
   ],
   controllers: [HealthController],
 })
