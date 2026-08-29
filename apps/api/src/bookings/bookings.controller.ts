@@ -16,6 +16,7 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { RequirePermission } from '../common/decorators/permission.decorator';
 import { Role } from '../common/enums/role.enum';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
@@ -59,6 +60,7 @@ export class BookingsController {
 
   @UseGuards(RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('schedule')
   @Get('class/:classInstanceId')
   roster(@Param('classInstanceId', ParseUUIDPipe) classInstanceId: string) {
     return this.bookingsRepo.find({

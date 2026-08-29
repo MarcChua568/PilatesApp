@@ -17,6 +17,7 @@ import { RsvpDto } from './dto/rsvp.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { RequirePermission } from '../common/decorators/permission.decorator';
 import { Role } from '../common/enums/role.enum';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
@@ -32,6 +33,7 @@ export class EventsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('events')
   @Get('admin/all')
   findAllAdmin() {
     return this.service.findAllAdmin();
@@ -50,6 +52,7 @@ export class EventsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('events')
   @Post()
   create(@Body() dto: CreateEventDto) {
     return this.service.create(dto);
@@ -57,6 +60,7 @@ export class EventsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('events')
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -67,6 +71,7 @@ export class EventsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('events')
   @Delete(':id')
   @HttpCode(204)
   remove(@Param('id', ParseUUIDPipe) id: string) {

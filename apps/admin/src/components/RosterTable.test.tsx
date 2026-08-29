@@ -26,6 +26,7 @@ const base: Booking = {
     email: 'ann@x.com',
     phone: null,
     role: 'member',
+    permissions: [],
     healthWaiverSignedAt: '2020-01-01',
     createdAt: '2020-01-01',
   },

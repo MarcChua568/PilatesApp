@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -16,6 +18,8 @@ import { Role } from '../common/enums/role.enum';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from './entities/user.entity';
 import { ListUsersDto } from './dto/list-users.dto';
+import { CreateStaffDto } from './dto/create-staff.dto';
+import { UpdateAccessDto } from './dto/update-access.dto';
 
 function toPublic({ passwordHash, ...safe }: User) {
   void passwordHash;
@@ -43,10 +47,29 @@ export class UsersController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles(Role.STAFF, Role.ADMIN)
+  @Roles(Role.STAFF, Role.ADMIN, Role.SUPERADMIN)
   @Get()
   async list(@Query() dto: ListUsersDto) {
     const { data, total } = await this.usersService.list(dto);
     return { data: data.map(toPublic), total };
+  }
+
+  // --- Team access management — superadmin only. ---
+
+  @UseGuards(RolesGuard)
+  @Roles(Role.SUPERADMIN)
+  @Post('staff')
+  async createStaff(@Body() dto: CreateStaffDto) {
+    return toPublic(await this.usersService.createStaff(dto));
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(Role.SUPERADMIN)
+  @Patch(':id/access')
+  async updateAccess(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateAccessDto,
+  ) {
+    return toPublic(await this.usersService.updateAccess(id, dto));
   }
 }

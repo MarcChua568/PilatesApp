@@ -12,6 +12,7 @@ import { SubmitWaiverDto } from './dto/submit-waiver.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { RequirePermission } from '../common/decorators/permission.decorator';
 import { Role } from '../common/enums/role.enum';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
@@ -33,6 +34,7 @@ export class WaiversController {
 
   @UseGuards(RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('waivers')
   @Get()
   list() {
     return this.service.list();
@@ -40,6 +42,7 @@ export class WaiversController {
 
   @UseGuards(RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('waivers')
   @Get(':userId')
   getForUser(@Param('userId', ParseUUIDPipe) userId: string) {
     return this.service.getForUser(userId);

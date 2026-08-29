@@ -12,6 +12,8 @@ import {
   Megaphone,
   BarChart3,
   Settings,
+  ShieldCheck,
+  ShoppingBag,
   Tag,
   Wallet,
   LogOut,
@@ -20,18 +22,20 @@ import { cn } from '@pilates/ui';
 import { useAuth } from '@/auth/useAuth';
 
 const NAV = [
-  { to: '/schedule', label: 'Schedule', icon: CalendarDays },
-  { to: '/classes', label: 'Classes', icon: LayoutGrid },
-  { to: '/instructors', label: 'Instructors', icon: Dumbbell },
-  { to: '/rooms', label: 'Rooms', icon: DoorOpen },
-  { to: '/events', label: 'Events', icon: CalendarHeart },
-  { to: '/promotions', label: 'Promotions', icon: Tag },
-  { to: '/packages', label: 'Pricing', icon: Wallet },
-  { to: '/site-content', label: 'Site content', icon: FileText },
-  { to: '/waivers', label: 'Waivers', icon: ClipboardCheck },
-  { to: '/reports', label: 'Reports', icon: BarChart3 },
-  { to: '/announcements', label: 'Announcements', icon: Megaphone },
-  { to: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
+  { to: '/schedule', label: 'Schedule', icon: CalendarDays, permission: 'schedule' },
+  { to: '/classes', label: 'Classes', icon: LayoutGrid, permission: 'classes' },
+  { to: '/instructors', label: 'Instructors', icon: Dumbbell, permission: 'instructors' },
+  { to: '/rooms', label: 'Rooms', icon: DoorOpen, permission: 'rooms' },
+  { to: '/events', label: 'Events', icon: CalendarHeart, permission: 'events' },
+  { to: '/promotions', label: 'Promotions', icon: Tag, permission: 'promotions' },
+  { to: '/packages', label: 'Pricing', icon: Wallet, permission: 'pricing' },
+  { to: '/shop', label: 'Shop', icon: ShoppingBag, permission: 'shop' },
+  { to: '/site-content', label: 'Site content', icon: FileText, permission: 'site-content' },
+  { to: '/waivers', label: 'Waivers', icon: ClipboardCheck, permission: 'waivers' },
+  { to: '/reports', label: 'Reports', icon: BarChart3, permission: 'reports' },
+  { to: '/announcements', label: 'Announcements', icon: Megaphone, permission: 'announcements' },
+  { to: '/settings', label: 'Settings', icon: Settings, permission: 'settings' },
+  { to: '/team', label: 'Team & access', icon: ShieldCheck, superadminOnly: true },
 ];
 
 export function AppShell() {
@@ -48,7 +52,11 @@ export function AppShell() {
           </p>
         </div>
         <nav className="flex-1 space-y-0.5 px-3">
-          {NAV.filter((i) => !i.adminOnly || user?.role === 'admin').map(
+          {NAV.filter((i) => {
+            if (user?.role === 'superadmin') return true;
+            if (i.superadminOnly || !i.permission) return false;
+            return (user?.permissions ?? []).includes(i.permission);
+          }).map(
             ({ to, label, icon: Icon }) => (
               <NavLink
                 key={to}

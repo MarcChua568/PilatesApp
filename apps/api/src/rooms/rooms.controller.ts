@@ -16,6 +16,7 @@ import { UpdateRoomDto } from './dto/update-room.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { RequirePermission } from '../common/decorators/permission.decorator';
 import { Role } from '../common/enums/role.enum';
 
 @Controller('rooms')
@@ -34,6 +35,7 @@ export class RoomsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('rooms')
   @Post()
   create(@Body() dto: CreateRoomDto) {
     return this.roomsService.create(dto);
@@ -41,6 +43,7 @@ export class RoomsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('rooms')
   @Patch(':id')
   update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateRoomDto) {
     return this.roomsService.update(id, dto);
@@ -48,6 +51,7 @@ export class RoomsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('rooms')
   @Delete(':id')
   @HttpCode(204)
   remove(@Param('id', ParseUUIDPipe) id: string) {

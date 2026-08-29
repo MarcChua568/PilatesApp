@@ -1,9 +1,10 @@
-import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ListUsersDto {
+  // Comma-separated (e.g. "staff,admin,superadmin") to match several roles.
   @IsOptional()
-  @IsIn(['member', 'staff', 'admin'])
+  @IsString()
   role?: string;
 
   @IsOptional()

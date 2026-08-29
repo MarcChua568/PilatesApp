@@ -1,4 +1,24 @@
-export type Role = 'member' | 'staff' | 'admin';
+export type Role = 'member' | 'staff' | 'admin' | 'superadmin';
+
+// Admin-portal sections grantable to a STAFF/ADMIN user. Keep in sync with
+// apps/api/src/common/enums/role.enum.ts's ADMIN_PERMISSIONS.
+export const ADMIN_PERMISSIONS = [
+  'schedule',
+  'classes',
+  'instructors',
+  'rooms',
+  'events',
+  'promotions',
+  'pricing',
+  'shop',
+  'site-content',
+  'waivers',
+  'reports',
+  'announcements',
+  'settings',
+] as const;
+
+export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number];
 export type ClassType = 'reformer' | 'mat' | 'barre' | 'other';
 export type IntensityLevel = 'beginner' | 'intermediate' | 'advanced';
 export type BookingStatus =
@@ -20,6 +40,7 @@ export interface UserPublic {
   fullName: string;
   phone: string | null;
   role: Role;
+  permissions: string[];
   healthWaiverSignedAt: string | null;
   createdAt: string;
 }
@@ -252,6 +273,52 @@ export interface StudioPackage {
   updatedAt: string;
 }
 
+export type ProductCategory =
+  | 'apparel'
+  | 'grip-socks'
+  | 'wellness'
+  | 'merch'
+  | 'other';
+
+export interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  category: ProductCategory;
+  description: string;
+  pricePhp: number | null;
+  imageUrl: string | null;
+  videoUrl: string | null;
+  externalUrl: string | null;
+  featured: boolean;
+  sortOrder: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CreditTransactionType =
+  | 'purchase'
+  | 'gift_sent'
+  | 'gift_received'
+  | 'redeemed'
+  | 'refund';
+
+export interface CreditTransaction {
+  id: string;
+  userId: string;
+  type: CreditTransactionType;
+  amount: number;
+  counterpartyUserId: string | null;
+  note: string | null;
+  createdAt: string;
+}
+
+export interface CreditsSummary {
+  balance: number;
+  transactions: CreditTransaction[];
+}
+
 export interface WaiverSubmission {
   id: string;
   userId: string;
@@ -282,7 +349,8 @@ export type NotificationType =
   | 'reminder'
   | 'cancelled'
   | 'welcome'
-  | 'event_rsvp';
+  | 'event_rsvp'
+  | 'gift_received';
 
 export interface AppNotification {
   id: string;

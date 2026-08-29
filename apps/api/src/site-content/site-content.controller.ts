@@ -4,6 +4,7 @@ import { UpsertSiteContentDto } from './dto/upsert-site-content.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { RequirePermission } from '../common/decorators/permission.decorator';
 import { Role } from '../common/enums/role.enum';
 
 @Controller('site-content')
@@ -17,6 +18,7 @@ export class SiteContentController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('site-content')
   @Patch(':key')
   upsert(@Param('key') key: string, @Body() dto: UpsertSiteContentDto) {
     return this.service.upsert(key, dto.data);

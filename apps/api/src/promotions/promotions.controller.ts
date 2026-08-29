@@ -16,6 +16,7 @@ import { UpdatePromotionDto } from './dto/update-promotion.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { RequirePermission } from '../common/decorators/permission.decorator';
 import { Role } from '../common/enums/role.enum';
 
 @Controller('promotions')
@@ -29,6 +30,7 @@ export class PromotionsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('promotions')
   @Get('admin/all')
   findAllAdmin() {
     return this.service.findAllAdmin();
@@ -41,6 +43,7 @@ export class PromotionsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('promotions')
   @Post()
   create(@Body() dto: CreatePromotionDto) {
     return this.service.create(dto);
@@ -48,6 +51,7 @@ export class PromotionsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('promotions')
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -58,6 +62,7 @@ export class PromotionsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('promotions')
   @Delete(':id')
   @HttpCode(204)
   remove(@Param('id', ParseUUIDPipe) id: string) {

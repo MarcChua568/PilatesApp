@@ -6,7 +6,8 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
-import { Role } from '../enums/role.enum';
+import { PERMISSION_KEY } from '../decorators/permission.decorator';
+import { Role, type AdminPermission } from '../enums/role.enum';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -17,12 +18,27 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (!requiredRoles || requiredRoles.length === 0) return true;
+    const requiredPermission = this.reflector.getAllAndOverride<
+      AdminPermission | undefined
+    >(PERMISSION_KEY, [context.getHandler(), context.getClass()]);
 
     const { user } = context.switchToHttp().getRequest();
-    if (!user || !requiredRoles.includes(user.role)) {
+
+    // Superadmins satisfy any @Roles/@RequirePermission check — they
+    // administer everyone else's access, so nothing should lock them out.
+    if (user?.role === Role.SUPERADMIN) return true;
+
+    if (requiredRoles?.length && (!user || !requiredRoles.includes(user.role))) {
       throw new ForbiddenException('Insufficient role');
     }
+
+    if (
+      requiredPermission &&
+      !(user?.permissions ?? []).includes(requiredPermission)
+    ) {
+      throw new ForbiddenException(`Missing permission: ${requiredPermission}`);
+    }
+
     return true;
   }
 }

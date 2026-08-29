@@ -5,9 +5,11 @@ import { useAuth } from './useAuth';
 export function RequireStaff({
   children,
   role,
+  permission,
 }: {
   children: ReactNode;
-  role?: 'admin';
+  role?: 'admin' | 'superadmin';
+  permission?: string;
 }) {
   const { user, isLoading } = useAuth();
   const location = useLocation();
@@ -35,12 +37,41 @@ export function RequireStaff({
     );
   }
 
+  // Superadmins bypass every role/permission check below — they administer
+  // everyone else's access, so nothing should lock them out.
+  if (user.role === 'superadmin') return <>{children}</>;
+
+  if (role === 'superadmin') {
+    return (
+      <div className="grid min-h-screen place-items-center px-4 text-center">
+        <div>
+          <p className="eyebrow mb-2">Superadmins only</p>
+          <p className="text-muted">This section manages other users' access.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (role === 'admin' && user.role !== 'admin') {
     return (
       <div className="grid min-h-screen place-items-center px-4 text-center">
         <div>
           <p className="eyebrow mb-2">Admins only</p>
           <p className="text-muted">This section needs an admin account.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (permission && !(user.permissions ?? []).includes(permission)) {
+    return (
+      <div className="grid min-h-screen place-items-center px-4 text-center">
+        <div>
+          <p className="eyebrow mb-2">No access</p>
+          <p className="text-muted">
+            You don't have access to this section. Ask a superadmin to grant
+            it.
+          </p>
         </div>
       </div>
     );

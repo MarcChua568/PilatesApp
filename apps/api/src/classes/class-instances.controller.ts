@@ -18,6 +18,7 @@ import { GenerateInstancesDto } from './dto/generate-instances.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { RequirePermission } from '../common/decorators/permission.decorator';
 import { Role } from '../common/enums/role.enum';
 
 @Controller('class-instances')
@@ -39,6 +40,7 @@ export class ClassInstancesController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('classes')
   @Post()
   create(@Body() dto: CreateClassInstanceDto) {
     return this.service.createManual(dto);
@@ -46,6 +48,7 @@ export class ClassInstancesController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('classes')
   @Post('generate/:templateId')
   generate(
     @Param('templateId', ParseUUIDPipe) templateId: string,
@@ -59,6 +62,7 @@ export class ClassInstancesController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('classes')
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -69,6 +73,7 @@ export class ClassInstancesController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('classes')
   @Patch(':id/cancel')
   cancel(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.cancel(id);

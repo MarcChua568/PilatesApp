@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { RequireStaff } from '@/auth/RequireStaff';
 import { AppShell } from '@/components/AppShell';
@@ -13,8 +14,14 @@ import { SettingsPage } from '@/pages/SettingsPage';
 import { EventsPage } from '@/pages/EventsPage';
 import { PromotionsPage } from '@/pages/PromotionsPage';
 import { PackagesPage } from '@/pages/PackagesPage';
+import { ShopPage } from '@/pages/ShopPage';
 import { SiteContentPage } from '@/pages/SiteContentPage';
 import { WaiversPage } from '@/pages/WaiversPage';
+import { TeamPage } from '@/pages/TeamPage';
+
+function gated(permission: string, element: ReactNode) {
+  return <RequireStaff permission={permission}>{element}</RequireStaff>;
+}
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -27,23 +34,25 @@ export const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <Navigate to="/schedule" replace /> },
-      { path: 'schedule', element: <SchedulePage /> },
-      { path: 'schedule/:id', element: <ClassDetailPage /> },
-      { path: 'classes', element: <ClassesPage /> },
-      { path: 'instructors', element: <InstructorsPage /> },
-      { path: 'rooms', element: <RoomsPage /> },
-      { path: 'events', element: <EventsPage /> },
-      { path: 'promotions', element: <PromotionsPage /> },
-      { path: 'packages', element: <PackagesPage /> },
-      { path: 'site-content', element: <SiteContentPage /> },
-      { path: 'waivers', element: <WaiversPage /> },
-      { path: 'reports', element: <ReportsPage /> },
-      { path: 'announcements', element: <AnnouncementsPage /> },
+      { path: 'schedule', element: gated('schedule', <SchedulePage />) },
+      { path: 'schedule/:id', element: gated('schedule', <ClassDetailPage />) },
+      { path: 'classes', element: gated('classes', <ClassesPage />) },
+      { path: 'instructors', element: gated('instructors', <InstructorsPage />) },
+      { path: 'rooms', element: gated('rooms', <RoomsPage />) },
+      { path: 'events', element: gated('events', <EventsPage />) },
+      { path: 'promotions', element: gated('promotions', <PromotionsPage />) },
+      { path: 'packages', element: gated('pricing', <PackagesPage />) },
+      { path: 'shop', element: gated('shop', <ShopPage />) },
+      { path: 'site-content', element: gated('site-content', <SiteContentPage />) },
+      { path: 'waivers', element: gated('waivers', <WaiversPage />) },
+      { path: 'reports', element: gated('reports', <ReportsPage />) },
+      { path: 'announcements', element: gated('announcements', <AnnouncementsPage />) },
+      { path: 'settings', element: gated('settings', <SettingsPage />) },
       {
-        path: 'settings',
+        path: 'team',
         element: (
-          <RequireStaff role="admin">
-            <SettingsPage />
+          <RequireStaff role="superadmin">
+            <TeamPage />
           </RequireStaff>
         ),
       },

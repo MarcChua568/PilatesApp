@@ -16,6 +16,7 @@ import { UpdateInstructorDto } from './dto/update-instructor.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { RequirePermission } from '../common/decorators/permission.decorator';
 import { Role } from '../common/enums/role.enum';
 
 @Controller('instructors')
@@ -34,6 +35,7 @@ export class InstructorsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('instructors')
   @Post()
   create(@Body() dto: CreateInstructorDto) {
     return this.instructorsService.create(dto);
@@ -41,6 +43,7 @@ export class InstructorsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('instructors')
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -51,6 +54,7 @@ export class InstructorsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('instructors')
   @Delete(':id')
   @HttpCode(204)
   remove(@Param('id', ParseUUIDPipe) id: string) {

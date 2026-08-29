@@ -14,6 +14,7 @@ import { UpdateClassTemplateDto } from './dto/update-class-template.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { RequirePermission } from '../common/decorators/permission.decorator';
 import { Role } from '../common/enums/role.enum';
 
 @Controller('class-templates')
@@ -37,6 +38,7 @@ export class ClassTemplatesController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('classes')
   @Post()
   create(@Body() dto: CreateClassTemplateDto) {
     return this.service.create(dto);
@@ -44,6 +46,7 @@ export class ClassTemplatesController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('classes')
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -54,6 +57,7 @@ export class ClassTemplatesController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('classes')
   @Patch(':id/deactivate')
   deactivate(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.deactivate(id);

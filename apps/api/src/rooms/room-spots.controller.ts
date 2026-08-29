@@ -16,6 +16,7 @@ import { UpdateRoomSpotDto } from './dto/update-room-spot.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { RequirePermission } from '../common/decorators/permission.decorator';
 import { Role } from '../common/enums/role.enum';
 
 @Controller()
@@ -29,6 +30,7 @@ export class RoomSpotsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('rooms')
   @Post('rooms/:roomId/spots')
   create(
     @Param('roomId', ParseUUIDPipe) roomId: string,
@@ -39,6 +41,7 @@ export class RoomSpotsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('rooms')
   @Patch('spots/:id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -49,6 +52,7 @@ export class RoomSpotsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('rooms')
   @Delete('spots/:id')
   @HttpCode(204)
   remove(@Param('id', ParseUUIDPipe) id: string) {

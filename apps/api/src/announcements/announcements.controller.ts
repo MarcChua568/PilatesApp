@@ -14,6 +14,7 @@ import { CreateAnnouncementDto } from './dto/create-announcement.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { RequirePermission } from '../common/decorators/permission.decorator';
 import { Role } from '../common/enums/role.enum';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
@@ -35,6 +36,7 @@ export class AnnouncementsController {
 
   @UseGuards(RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('announcements')
   @Post()
   create(@Body() dto: CreateAnnouncementDto, @CurrentUser() user: User) {
     return this.announcementsService.create(dto, user.id);
@@ -42,6 +44,7 @@ export class AnnouncementsController {
 
   @UseGuards(RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
+  @RequirePermission('announcements')
   @Delete(':id')
   @HttpCode(204)
   remove(@Param('id', ParseUUIDPipe) id: string) {
