@@ -1,5 +1,6 @@
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { transitions } from '@pilates/ui';
 import { hooks } from '@/lib/api';
 import { block } from '@/lib/content';
@@ -49,69 +50,84 @@ export function HomePage() {
     url: SITE.url,
   };
 
+  const heroWrapRef = useRef<HTMLDivElement>(null);
+  // Scroll progress across the tall wrapper below, not the pinned section
+  // itself (which never moves) — this is what drives the zoom.
+  const { scrollYProgress: heroProgress } = useScroll({
+    target: heroWrapRef,
+    offset: ['start start', 'end start'],
+  });
+  const heroScale = useTransform(heroProgress, [0, 1], [1, 1.18]);
+
   return (
     <div>
       <Seo path="/" jsonLd={[localBusinessLd(), websiteLd]} />
 
-      {/* Hero */}
-      <section className="relative flex min-h-[92vh] items-end overflow-hidden">
-        {heroBlk.videoUrl ? (
-          <video
-            key={heroBlk.videoUrl}
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster={heroBlk.imageUrl || '/img/hero.jpg'}
-            className="editorial-img absolute inset-0 h-full w-full object-cover"
-          >
-            <source src={heroBlk.videoUrl} type="video/mp4" />
-          </video>
-        ) : (
-          <img
-            src={heroBlk.imageUrl || '/img/hero.jpg'}
-            alt=""
-            className="editorial-img absolute inset-0 h-full w-full object-cover"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-deep/85 via-deep/30 to-deep/40" />
-        <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 text-deep-fg">
-          <motion.p
-            className="eyebrow text-deep-fg/70"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={transitions.editorial}
-          >
-            {heroBlk.eyebrow}
-          </motion.p>
-          <motion.h1
-            className="mt-3 max-w-3xl font-display text-5xl font-light leading-[1.05] tracking-tight sm:text-6xl md:text-7xl"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...transitions.editorial, delay: 0.08 }}
-          >
-            {heroBlk.heading}
-          </motion.h1>
-          <motion.div
-            className="mt-8 flex flex-wrap gap-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...transitions.editorial, delay: 0.16 }}
-          >
-            <Button size="lg" asChild>
-              <Link to="/schedule">Book a class</Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-deep-fg/40 text-deep-fg hover:bg-deep-fg/10"
-              asChild
+      {/* Hero — pinned via `sticky` while the taller wrapper scrolls past,
+          so the background keeps playing/zooming for a beat before the page
+          moves on to the next section. */}
+      <div ref={heroWrapRef} className="relative h-[170vh]">
+        <section className="sticky top-0 flex h-[92vh] items-end overflow-hidden">
+          {heroBlk.videoUrl ? (
+            <motion.video
+              key={heroBlk.videoUrl}
+              style={{ scale: heroScale }}
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster={heroBlk.imageUrl || '/img/hero.jpg'}
+              className="editorial-img absolute inset-0 h-full w-full object-cover"
             >
-              <Link to="/about">Explore MILE</Link>
-            </Button>
-          </motion.div>
-        </div>
-      </section>
+              <source src={heroBlk.videoUrl} type="video/mp4" />
+            </motion.video>
+          ) : (
+            <motion.img
+              style={{ scale: heroScale }}
+              src={heroBlk.imageUrl || '/img/hero.jpg'}
+              alt=""
+              className="editorial-img absolute inset-0 h-full w-full object-cover"
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-deep/85 via-deep/30 to-deep/40" />
+          <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 text-deep-fg">
+            <motion.p
+              className="eyebrow text-deep-fg/70"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={transitions.editorial}
+            >
+              {heroBlk.eyebrow}
+            </motion.p>
+            <motion.h1
+              className="mt-3 max-w-3xl font-display text-5xl font-light leading-[1.05] tracking-tight sm:text-6xl md:text-7xl"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...transitions.editorial, delay: 0.08 }}
+            >
+              {heroBlk.heading}
+            </motion.h1>
+            <motion.div
+              className="mt-8 flex flex-wrap gap-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...transitions.editorial, delay: 0.16 }}
+            >
+              <Button size="lg" asChild>
+                <Link to="/schedule">Book a class</Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-deep-fg/40 text-deep-fg hover:bg-deep-fg/10"
+                asChild
+              >
+                <Link to="/about">Explore MILE</Link>
+              </Button>
+            </motion.div>
+          </div>
+        </section>
+      </div>
 
       {/* Intro statement */}
       <section className="mx-auto max-w-prose px-5 py-20 text-center">
