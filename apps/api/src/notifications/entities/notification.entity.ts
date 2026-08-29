@@ -14,7 +14,8 @@ export type NotificationType =
   | 'reminder'
   | 'cancelled'
   | 'welcome'
-  | 'event_rsvp';
+  | 'event_rsvp'
+  | 'gift_received';
 
 /**
  * An in-app message for a member. Stands in for the email/SMS layer that is not

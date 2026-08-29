@@ -17,6 +17,7 @@ import { TheSpacePage } from '@/pages/TheSpacePage';
 import { LocationPage } from '@/pages/LocationPage';
 import { ContactPage } from '@/pages/ContactPage';
 import { ShopPage } from '@/pages/ShopPage';
+import { GiftClaimPage } from '@/pages/GiftClaimPage';
 import { EventsPage } from '@/pages/EventsPage';
 import { EventDetailPage } from '@/pages/EventDetailPage';
 import { PromoLandingPage } from '@/pages/PromoLandingPage';
@@ -51,6 +52,7 @@ export const router = createBrowserRouter([
       { path: 'location', element: <LocationPage /> },
       { path: 'contact', element: <ContactPage /> },
       { path: 'shop', element: <ShopPage /> },
+      { path: 'gift/:token', element: <GiftClaimPage /> },
       { path: 'events', element: <EventsPage /> },
       { path: 'events/:slug', element: <EventDetailPage /> },
       { path: 'promo/:slug', element: <PromoLandingPage /> },

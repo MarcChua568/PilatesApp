@@ -4,6 +4,7 @@ import {
   CalendarCheck,
   CalendarX,
   Clock,
+  Gift,
   PartyPopper,
   Sparkles,
 } from 'lucide-react';
@@ -18,6 +19,7 @@ const ICON: Record<NotificationType, typeof Bell> = {
   cancelled: CalendarX,
   welcome: PartyPopper,
   event_rsvp: PartyPopper,
+  gift_received: Gift,
 };
 
 export function NotificationsPage() {

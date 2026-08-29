@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/label';
+import { CreditsCard } from '@/components/CreditsCard';
 
 export function AccountPage() {
   const { user, logout, refetchUser } = useAuth();
@@ -114,6 +115,8 @@ export function AccountPage() {
           )}
         </CardContent>
       </Card>
+
+      <CreditsCard />
 
       {waiver && (
         <Card className="mt-4">

@@ -17,7 +17,8 @@ import { SiteContentBlock } from '../site-content/entities/site-content-block.en
 import { Package } from '../packages/entities/package.entity';
 import { WaiverSubmission } from '../waivers/entities/waiver-submission.entity';
 import { Notification } from '../notifications/entities/notification.entity';
-import { Role } from '../common/enums/role.enum';
+import { Product } from '../shop/entities/product.entity';
+import { Role, ADMIN_PERMISSIONS } from '../common/enums/role.enum';
 import { ClassType } from '../common/enums/class-type.enum';
 import { IntensityLevel } from '../common/enums/intensity-level.enum';
 import { ClassInstanceStatus } from '../common/enums/class-instance-status.enum';
@@ -84,7 +85,7 @@ async function seed() {
   await em.query(
     'TRUNCATE bookings, class_instances, class_templates, room_spots, rooms, ' +
       'instructors, announcements, events, event_rsvps, promotions, ' +
-      'site_content_blocks, packages, waiver_submissions, notifications, users ' +
+      'site_content_blocks, packages, products, waiver_submissions, notifications, users ' +
       'RESTART IDENTITY CASCADE',
   );
 
@@ -100,26 +101,33 @@ async function seed() {
   });
 
   // ---- people ----
+  // admin@studio.test is the superadmin — full access, manages everyone
+  // else's permissions from Team & access.
   const admin = await em.getRepository(User).save({
     email: 'admin@studio.test',
     passwordHash,
     fullName: 'Nadia Rowe',
-    role: Role.ADMIN,
+    role: Role.SUPERADMIN,
     healthWaiverSignedAt: waiver,
   });
   await em.getRepository(User).save([
     {
+      // Full admin, but access is still permission-driven (has everything
+      // granted) — demonstrates that even ADMIN isn't a blanket bypass.
       email: 'staff1@studio.test',
       passwordHash,
       fullName: 'Theo Marsh',
-      role: Role.STAFF,
+      role: Role.ADMIN,
+      permissions: [...ADMIN_PERMISSIONS],
       healthWaiverSignedAt: waiver,
     },
     {
+      // Front-desk staff — only the sections they actually need day to day.
       email: 'staff2@studio.test',
       passwordHash,
       fullName: 'Priya Anand',
       role: Role.STAFF,
+      permissions: ['schedule', 'classes', 'instructors', 'waivers'],
       healthWaiverSignedAt: waiver,
     },
   ]);
@@ -611,6 +619,65 @@ async function seed() {
     },
   ]);
 
+  // ---- shop ----
+  const pexelsPhoto = (id: string) =>
+    `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&w=800`;
+  await em.getRepository(Product).save([
+    {
+      name: 'MILI x MILE Rib Set',
+      slug: 'mili-x-mile-rib-set',
+      category: 'apparel',
+      description:
+        'A limited co-branded piece from our MILI Club partnership — ribbed, four-way stretch, built for reformer to street.',
+      pricePhp: null,
+      imageUrl: pexelsPhoto('32969128'),
+      videoUrl: 'https://videos.pexels.com/video-files/6323282/6323282-uhd_1440_2732_30fps.mp4',
+      externalUrl: 'https://miliclubofficial.com',
+      featured: true,
+      sortOrder: 1,
+      active: true,
+    },
+    {
+      name: 'MILE Grip Socks',
+      slug: 'mile-grip-socks',
+      category: 'grip-socks',
+      description: 'Studio-required for reformer. Restocked weekly at the front desk.',
+      pricePhp: 450,
+      imageUrl: pexelsPhoto('6111606'),
+      videoUrl: null,
+      externalUrl: null,
+      featured: false,
+      sortOrder: 2,
+      active: true,
+    },
+    {
+      name: 'Everyday Legging',
+      slug: 'everyday-legging',
+      category: 'apparel',
+      description: 'Squat-proof, four panels, side pocket. The one we actually teach in.',
+      pricePhp: 2200,
+      imageUrl: pexelsPhoto('429862'),
+      videoUrl: null,
+      externalUrl: null,
+      featured: false,
+      sortOrder: 3,
+      active: true,
+    },
+    {
+      name: 'Post-Class Recovery Candle',
+      slug: 'recovery-candle',
+      category: 'wellness',
+      description: 'Small-batch, soy wax, scented with the same eucalyptus we use in the studio diffuser.',
+      pricePhp: 950,
+      imageUrl: pexelsPhoto('35532443'),
+      videoUrl: null,
+      externalUrl: null,
+      featured: false,
+      sortOrder: 4,
+      active: true,
+    },
+  ]);
+
   // ---- events ----
   const D = (days: number, hour: number) => {
     const d = new Date(now + days * DAY);
@@ -947,6 +1014,7 @@ async function seed() {
     eventRsvps: await em.getRepository(EventRsvp).count(),
     promotions: await em.getRepository(Promotion).count(),
     packages: await em.getRepository(Package).count(),
+    products: await em.getRepository(Product).count(),
     siteContentBlocks: await em.getRepository(SiteContentBlock).count(),
     waivers: await em.getRepository(WaiverSubmission).count(),
     notifications: await em.getRepository(Notification).count(),
